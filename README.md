@@ -9,11 +9,11 @@ Projekt na przedmiot Tworzenie Aplikacji Bazodanowych dla kierunku Informatyka n
 
 ## Uruchamianie lokalnie:
 
-1. Skopiuj plik `config/database.example.php`, zmień jego nazwę na `database.php` i wpisz w nim swoje hasło do PostgreSQL.
-2. Otwórz pgAdmin lub DBeaver i utwórz pustą bazę danych.
-3. Wykonaj skrypt `database/init.sql`, aby utworzyć strukturę tabel (uwaga: skrypt czyści bazę, jeśli już istniała!).
-4. Wykonaj skrypt `database/seed.sql`, aby wypełnić bazę testowymi kategoriami i produktami.
-5. Uruchom serwer klikając w plik `start.bat` (lub ręcznie: `php -S localhost:8000 -t public`).
+1. Skopiuj plik `config/database.example.php`, zmień jego nazwę na `database.php` i wpisz w nim swoją nazwę użytkownika, hasło do PostgreSQL.
+2. Otwórz pgAdmin lub DBeaver i utwórz pustą bazę danych, uzupełnij nazwę bazy w `database.php`.
+3. Na bazie danych wykonaj kod znajdujący się w `database/init.sql`, aby utworzyć strukturę tabel (uwaga: skrypt czyści bazę, jeśli już istniała!).
+4. Na bazie danych wykonaj kod znajdujący się w `database/seed.sql`, aby wypełnić bazę testowymi kategoriami i produktami.
+5. Uruchom plit `start_local.bat` (lub ręcznie: `php -S localhost:8000 -t public`).
 
 ## Autorzy
 * Maciej Guja
