@@ -1,3 +1,19 @@
+-- clean database
+DROP TABLE IF EXISTS order_items CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS product_variants CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS promotions CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+
+-- Następnie usuwamy nasze własne typy wyliczeniowe ENUM
+DROP TYPE IF EXISTS gender_type CASCADE;
+DROP TYPE IF EXISTS user_role_type CASCADE;
+DROP TYPE IF EXISTS discount_type_enum CASCADE;
+
+
 -- Initialize database structure
 
 -- Enums
