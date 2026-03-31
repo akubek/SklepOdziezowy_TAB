@@ -1,4 +1,4 @@
-# Projekt sklepu z odzieżą POLSL TAB
+# Projekt sklepu z odzieżą.
 
 Projekt na przedmiot Tworzenie Aplikacji Bazodanowych dla kierunku Informatyka na Politechnice Śląskiej.
 
