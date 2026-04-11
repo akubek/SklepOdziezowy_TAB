@@ -6,6 +6,7 @@ Projekt na przedmiot Tworzenie Aplikacji Bazodanowych dla kierunku Informatyka n
 * **Backend:** PHP 8.x
 * **Baza danych:** PostgreSQL
 * **Frontend:** HTML, CSS, Vanilla JS
+* **Infrastruktura / Środowisko:** Docker & Docker Compose
 
 ## Uruchamianie lokalnie (Docker - Rekomendowane):
 
