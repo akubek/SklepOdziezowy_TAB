@@ -7,13 +7,20 @@ Projekt na przedmiot Tworzenie Aplikacji Bazodanowych dla kierunku Informatyka n
 * **Baza danych:** PostgreSQL
 * **Frontend:** HTML, CSS, Vanilla JS
 
-## Uruchamianie lokalnie:
+## Uruchamianie lokalnie (Docker - Rekomendowane):
 
-1. Skopiuj plik `config/database.example.php`, zmień jego nazwę na `database.php` i wpisz w nim swoją nazwę użytkownika, hasło do PostgreSQL.
-2. Otwórz pgAdmin lub DBeaver i utwórz pustą bazę danych, uzupełnij nazwę bazy w `database.php`.
-3. Na bazie danych wykonaj kod znajdujący się w `database/init.sql`, aby utworzyć strukturę tabel (uwaga: skrypt czyści bazę, jeśli już istniała!).
-4. Na bazie danych wykonaj kod znajdujący się w `database/seed.sql`, aby wypełnić bazę testowymi kategoriami i produktami.
-5. Uruchom plit `start_local.bat` (lub ręcznie: `php -S localhost:8000 -t public`).
+Projekt wykorzystuje konteneryzację, wymagany jest zainstalowany Docker oraz Docker Compose.
+
+1. Sklonuj repozytorium na swój dysk.
+2. Skopiuj plik `.env.example`, zmień jego nazwę na `.env` i uzupełnij zmienne, przede wszystkim hasło.
+3. Otwórz terminal w folderze projektu i wpisz: `docker-compose up -d`
+4. Baza danych powinna zostać automatycznie zainicjowana strukturą z pliku `database/init.sql` i testowymi danymi `database/seed.sql`. 
+
+**Dostępne usługi:**
+* Aplikacja (Sklep): [http://localhost:8000](http://localhost:8000)
+* Zarządzanie bazą (Adminer): [http://localhost:8081](http://localhost:8081) *(Serwer: db, dane logowania takie jak ustawione w .env)*
+
+Wyłączenie środowiska: `docker-compose down` 
 
 ## Autorzy
 * Maciej Guja
