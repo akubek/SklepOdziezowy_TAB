@@ -1,7 +1,9 @@
 <?php
-require_once '../config/database.php';
+require_once '../src/Database.php';
 require_once '../src/ProductManager.php';
-require_once '../src/CategoryManager.php'; // Dodajemy nowego menedżera
+require_once '../src/CategoryManager.php';
+
+$pdo = Database::getConnection();
 
 $productManager = new ProductManager($pdo);
 $categoryManager = new CategoryManager($pdo);

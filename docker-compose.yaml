@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    image: php:8.5-cli
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    depends_on:
+      - db
+    # PDO drivers on public
+    # 0.0.0.0 - visible outside
+    command: >
+      bash -c "apt-get update && apt-get install -y libpq-dev 
+      && docker-php-ext-install pdo pdo_pgsql 
+      && php -S 0.0.0.0:8000 -t public"
+
+  db:
+    # PostgreSQL version
+    image: postgres:18.3-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # automatic database setup from .sql files
+      - ./database:/docker-entrypoint-initdb.d
+
+  # minimal database admin tool
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
+
+volumes:
+  db-data:
