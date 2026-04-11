@@ -3,7 +3,7 @@
 Projekt na przedmiot Tworzenie Aplikacji Bazodanowych dla kierunku Informatyka na Politechnice Śląskiej.
 
 ## Technologie
-* **Backend:** PHP 8.x
+* **Backend:** PHP 8.5
 * **Baza danych:** PostgreSQL
 * **Frontend:** HTML, CSS, Vanilla JS
 * **Infrastruktura / Środowisko:** Docker & Docker Compose
