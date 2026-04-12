@@ -26,11 +26,11 @@
       <div class="col-md-4 text-md-end">
         <h5 class="text-uppercase mb-3">O sklepie</h5>
         <p class="mb-1">
-          Sklep z odzieżą, projekt Zaliczeniowy TAB
+          Sklep z odzieżą, projekt zaliczeniowy na przedmiot TAB POLSL
         </p>
 
         <small class="text-white-50">
-          &copy; <?= date('Y') ?> projekt studencki sklepu z odzieżą.<br> Wszelkie prawa zastrzeżone.
+          &copy; <?= date('Y') ?> POLSL projekt studencki sklepu z odzieżą.<br> Wszelkie prawa zastrzeżone.
         </small>
       </div>
 

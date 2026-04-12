@@ -27,5 +27,25 @@ class CategoryManager {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    // Pobiera pełną ścieżkę od root do bieżącej kategorii (potrzebne do breadcrumbs)
+    public function getCategoryPath($categoryId) {
+        $path = [];
+        $currentId = $categoryId;
+
+        while ($currentId !== null) {
+            $stmt = $this->pdo->prepare("SELECT id, name, parent_id FROM categories WHERE id = :id");
+            $stmt->bindValue(':id', $currentId, PDO::PARAM_INT);
+            $stmt->execute();
+            $cat = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$cat) break;
+
+            // Dodajemy na początek tablicy, żeby zachować kolejność: Główne -> Sub -> Liść
+            array_unshift($path, $cat); 
+            $currentId = $cat['parent_id'];
+        }
+        return $path;
+    }
 }
 ?>

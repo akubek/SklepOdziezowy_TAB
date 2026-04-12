@@ -17,8 +17,8 @@
 <h2 id="kategorie" class="mb-4 text-center fw-bold">Wybierz swój styl</h2>
 
 <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-    <?php if (!empty($categories)): ?>
-        <?php foreach ($categories as $category): ?>
+    <?php if (!empty($mainCategories)): ?>
+        <?php foreach ($mainCategories as $category): ?>
             <div class="col">
                 <div class="card h-100 shadow-sm border-0 position-relative category-card">
                     <img src="https://placehold.co/600x400/eeeeee/999999?text=<?= urlencode($category['name']) ?>" class="card-img-top object-fit-cover" alt="<?= htmlspecialchars($category['name']) ?>" style="height: 250px;">

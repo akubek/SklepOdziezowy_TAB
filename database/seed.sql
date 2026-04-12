@@ -15,7 +15,7 @@ INSERT INTO categories (id, name, parent_id) VALUES
 -- coats, shirst and t-shirts in female category
 (201, 'Kurtki',12),
 (202, 'Koszule',12),
-(203, 'T-Shirty',11),
+(203, 'T-Shirty',12),
 -- sweaters and t-shirst in child category
 (301, 'Swetry',13),
 (302, 'Koszulki',13),

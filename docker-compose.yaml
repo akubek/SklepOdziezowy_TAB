@@ -1,7 +1,4 @@
-version: '3.8'
-
-services:
-  web:
+services: web:
     image: php:8.5-cli
     ports:
       - "8000:8000"
