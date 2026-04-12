@@ -21,24 +21,21 @@ switch ($page) {
         break;
 
     case 'category':
-        // Użytkownik kliknął w kategorię
         $categoryId = $_GET['id'] ?? null;
         
         if ($categoryId) {
             $currentCategory = $categoryManager->getCategoryById($categoryId);
             $subcategories = $categoryManager->getSubcategories($categoryId);
             
-            // Jeśli kategoria ma podkategorie (Level 2), wyświetlamy listę podkategorii
-            // Jeśli nie ma (Level 3 - np. Kurtki), to znak, że trzeba załadować produkty!
+            $products = $productManager->getProductsByCategory($categoryId);
+
             if (!empty($subcategories)) {
                 require_once '../views/category_list.php';
             } else {
-                // TU PÓŹNIEJ DODAMY POBIERANIE PRODUKTÓW
-                echo "<h2>" . htmlspecialchars($currentCategory['name']) . "</h2>";
-                echo "<p>Tutaj niedługo wyświetlimy kafelki z produktami!</p>";
+                require_once '../views/product_list.php';
             }
         } else {
-            echo "Brak ID kategorii.";
+            echo "No category ID.";
         }
         break;
 
