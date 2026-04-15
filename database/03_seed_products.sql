@@ -46,7 +46,7 @@ INSERT INTO products (id, category_id, brand_name, name, description, base_price
 
 -- === PRODUKTY TESTOWE (EDGE CASES) ===
 (100, 402, 'TEST_BRAND', 'TEST_NO_STOCK', 'Ten produkt służy do testowania braku dostępności na magazynie. Nie powinien dać się dodać do koszyka.', 0.00),
-(101, 402, 'LayoutFix', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 9.99),
+(101, 402, 'LayoutFix', 'TEST_LAYOUT', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.', 9.99),
 (102, 402, 'Luxury Gold', 'Złoty Zegarek Kolekcjonerski', 'Produkt o bardzo wysokiej cenie, aby sprawdzić formatowanie waluty i dużych liczb w widoku.', 99999.99);
 
 -- Aktualizacja sekwencji dla tabeli products
