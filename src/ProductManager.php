@@ -77,6 +77,25 @@ class ProductManager {
 
         return $product;
     }
+
+    public function getVariantsWithProductInfo($variantIds) {
+        if (empty($variantIds)) return [];
+        
+        $placeholders = implode(',', array_fill(0, count($variantIds), '?'));
+        $sql = "
+            SELECT 
+                pv.id as variant_id, pv.sku, pv.attributes, pv.images, 
+                pv.price_modifier, pv.stock_quantity,
+                p.name as product_name, p.base_price
+            FROM product_variants pv
+            JOIN products p ON pv.product_id = p.id
+            WHERE pv.id IN ($placeholders)
+        ";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($variantIds);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
 }
 ?>

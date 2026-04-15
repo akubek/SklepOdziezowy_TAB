@@ -4,6 +4,7 @@ require_once '../src/ProductManager.php';
 require_once '../src/CategoryManager.php';
 require_once '../src/controllers/CategoryController.php';
 require_once '../src/controllers/ProductController.php';
+require_once '../src/controllers/CartController.php';
 
 $pdo = Database::getConnection();
 
@@ -35,7 +36,8 @@ switch ($page) {
         break;
 
     case 'cart':
-        require_once '../views/cart.php';
+        $controller = new CartController($productManager);
+        $controller->show();
         break;
 
     case 'product':
