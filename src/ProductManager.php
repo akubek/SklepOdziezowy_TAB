@@ -61,5 +61,22 @@ class ProductManager {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } 
+
+    public function getProductWithVariants($productId) {
+        // get product by productId 
+        $stmt = $this->pdo->prepare("SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id WHERE p.id = :id");
+        $stmt->execute(['id' => $productId]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$product) return null;
+
+        // get all variants for given product
+        $stmt = $this->pdo->prepare("SELECT * FROM product_variants WHERE product_id = :id");
+        $stmt->execute(['id' => $productId]);
+        $product['variants'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return $product;
+    }
+    
 }
 ?>

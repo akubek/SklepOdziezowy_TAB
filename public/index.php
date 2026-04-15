@@ -3,6 +3,7 @@ require_once '../src/Database.php';
 require_once '../src/ProductManager.php';
 require_once '../src/CategoryManager.php';
 require_once '../src/controllers/CategoryController.php';
+require_once '../src/controllers/ProductController.php';
 
 $pdo = Database::getConnection();
 
@@ -11,7 +12,7 @@ $categoryManager = new CategoryManager($pdo);
 
 $page = $_GET['page'] ?? 'home';
 
-$allowedPages = ['home', 'category', 'cart'];
+$allowedPages = ['home', 'category', 'cart', 'product'];
 
 if (!in_array($page, $allowedPages)) {
     http_response_code(404);
@@ -35,6 +36,11 @@ switch ($page) {
 
     case 'cart':
         require_once '../views/cart.php';
+        break;
+
+    case 'product':
+        $controller = new ProductController($productManager);
+        $controller->show($_GET['id'] ?? null);
         break;
 
     case '404':

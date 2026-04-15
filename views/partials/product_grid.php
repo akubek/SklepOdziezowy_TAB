@@ -15,7 +15,7 @@
                     <div class="card-body d-flex flex-column">
                         <span class="small text-muted mb-1"><?= htmlspecialchars($product['brand_name'] ?? 'Brak marki') ?></span>
                         <h5 class="card-title text-truncate mb-2">
-                            <a href="#!" class="text-decoration-none text-dark stretched-link">
+                        <a href="index.php?page=product&id=<?= $product['id'] ?>" class="text-decoration-none text-dark stretched-link">
                                 <?= htmlspecialchars($product['name']) ?>
                             </a>
                         </h5>
