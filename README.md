@@ -28,3 +28,6 @@ Wyłączenie środowiska: `docker-compose down`
 * Augustin Jakub
 * Artur Kubek
 * Antoni Wójtowicz
+
+## Licencja
+Ten projekt jest udostępniony na licencji MIT. Szczegóły znajdują się w pliku [LICENSE](LICENSE).
