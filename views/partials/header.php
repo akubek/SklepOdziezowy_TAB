@@ -45,7 +45,14 @@
             <a href="index.php?page=cart" class="btn btn-outline-light text-nowrap">
                 Koszyk <span class="badge bg-primary">0</span>
             </a>
-            <a href="index.php?page=login" class="btn btn-primary text-nowrap">Zaloguj</a>
+
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="index.php?page=profile" class="btn btn-outline-light text-nowrap">Moje konto</a>
+                <a href="index.php?page=logout" class="btn btn-danger text-nowrap">Wyloguj</a>
+            <?php else: ?>
+                <a href="index.php?page=login" class="btn btn-primary text-nowrap">Zaloguj</a>
+            <?php endif; ?>
+
           </div>
         </div>
       </div>

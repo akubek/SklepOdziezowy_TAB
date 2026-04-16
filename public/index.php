@@ -1,10 +1,13 @@
 <?php
+ob_start();
+session_start();
 require_once '../src/Database.php';
 require_once '../src/ProductManager.php';
 require_once '../src/CategoryManager.php';
 require_once '../src/controllers/CategoryController.php';
 require_once '../src/controllers/ProductController.php';
 require_once '../src/controllers/CartController.php';
+require_once '../src/controllers/AuthController.php';
 
 $pdo = Database::getConnection();
 
@@ -13,7 +16,7 @@ $categoryManager = new CategoryManager($pdo);
 
 $page = $_GET['page'] ?? 'home';
 
-$allowedPages = ['home', 'category', 'cart', 'product'];
+$allowedPages = ['home', 'category', 'cart', 'product', 'login', 'register', 'logout'];
 
 if (!in_array($page, $allowedPages)) {
     http_response_code(404);
@@ -43,6 +46,21 @@ switch ($page) {
     case 'product':
         $controller = new ProductController($productManager);
         $controller->show($_GET['id'] ?? null);
+        break;
+
+    case 'login':
+        $authController = new AuthController($pdo);
+        $authController->showLogin();
+        break;
+
+    case 'logout':
+        $authController = new AuthController($pdo);
+        $authController->logout();
+        break;
+
+    case 'register':
+        $authController = new AuthController($pdo);
+        $authController->showRegister();
         break;
 
     case '404':
