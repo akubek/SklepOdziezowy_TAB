@@ -14,28 +14,36 @@ class AuthController {
             $lastName = trim($_POST['last_name'] ?? '');
             $email = trim($_POST['email'] ?? '');
             $password = $_POST['password'] ?? '';
-
-            $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
-            $stmt->execute(['email' => $email]);
             
-            if ($stmt->fetch()) {
-                $error_message = "Konto z tym adresem e-mail już istnieje!";
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error_message = "Niepoprawny format adresu e-mail.";
+            } elseif (strlen($password) < 8) {
+                $error_message = "Hasło musi mieć co najmniej 8 znaków.";
+            } elseif (empty($firstName) || empty($lastName)) {
+                $error_message = "Imię i nazwisko są wymagane.";
             } else {
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                $insertStmt = $this->pdo->prepare("
-                    INSERT INTO users (first_name, last_name, email, password_hash) 
-                    VALUES (:first_name, :last_name, :email, :password_hash)
-                ");
-                try {
-                    $insertStmt->execute([
-                        'first_name' => $firstName,
-                        'last_name' => $lastName,
-                        'email' => $email,
-                        'password_hash' => $hashedPassword
-                    ]);
-                    $success_message = "Konto zostało pomyślnie utworzone! Możesz się teraz zalogować.";
-                } catch (PDOException $e) {
-                    $error_message = "Wystąpił błąd: " . $e->getMessage();
+                $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
+                $stmt->execute(['email' => $email]);
+                
+                if ($stmt->fetch()) {
+                    $error_message = "Konto z tym adresem e-mail już istnieje!";
+                } else {
+                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                    $insertStmt = $this->pdo->prepare("
+                        INSERT INTO users (first_name, last_name, email, password_hash) 
+                        VALUES (:first_name, :last_name, :email, :password_hash)
+                    ");
+                    try {
+                        $insertStmt->execute([
+                            'first_name' => $firstName,
+                            'last_name' => $lastName,
+                            'email' => $email,
+                            'password_hash' => $hashedPassword
+                        ]);
+                        $success_message = "Konto zostało pomyślnie utworzone! Możesz się teraz zalogować.";
+                    } catch (PDOException $e) {
+                        $error_message = "Wystąpił błąd: " . $e->getMessage();
+                    }
                 }
             }
         }
