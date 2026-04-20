@@ -12,30 +12,46 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $firstName = trim($_POST['first_name'] ?? '');
             $lastName = trim($_POST['last_name'] ?? '');
-            $email = trim($_POST['email'] ?? '');
+            $email = strtolower(trim($_POST['email'] ?? ''));
             $password = $_POST['password'] ?? '';
-
-            $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
-            $stmt->execute(['email' => $email]);
             
-            if ($stmt->fetch()) {
-                $error_message = "Konto z tym adresem e-mail już istnieje!";
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $error_message = "Niepoprawny format adresu e-mail.";
+            } elseif (strlen($password) < 8) {
+                $error_message = "Hasło musi mieć co najmniej 8 znaków.";
+            } elseif (empty($firstName) || empty($lastName)) {
+                $error_message = "Imię i nazwisko są wymagane.";
             } else {
-                $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-                $insertStmt = $this->pdo->prepare("
-                    INSERT INTO users (first_name, last_name, email, password_hash) 
-                    VALUES (:first_name, :last_name, :email, :password_hash)
-                ");
-                try {
-                    $insertStmt->execute([
-                        'first_name' => $firstName,
-                        'last_name' => $lastName,
-                        'email' => $email,
-                        'password_hash' => $hashedPassword
-                    ]);
-                    $success_message = "Konto zostało pomyślnie utworzone! Możesz się teraz zalogować.";
-                } catch (PDOException $e) {
-                    $error_message = "Wystąpił błąd: " . $e->getMessage();
+                $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
+                $stmt->execute(['email' => $email]);
+                
+                if ($stmt->fetch()) {
+                    $error_message = "Konto z tym adresem e-mail już istnieje!";
+                } else {
+                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                    $insertStmt = $this->pdo->prepare("
+                        INSERT INTO users (first_name, last_name, email, password_hash) 
+                        VALUES (:first_name, :last_name, :email, :password_hash)
+                    ");
+                    try {
+                        $insertStmt->execute([
+                            'first_name' => $firstName,
+                            'last_name' => $lastName,
+                            'email' => $email,
+                            'password_hash' => $hashedPassword
+                        ]);
+
+                        $_SESSION['flash_success'] = "Konto zostało pomyślnie utworzone! Możesz się teraz zalogować.";
+                        header("Location: index.php?page=login");
+                        exit;
+                    } catch (PDOException $e) {
+                        error_log("Registration error for email {$email} : " . $e->getMessage());
+                        if (in_array((string) $e->getCode(), ['23000', '23505'], true)) {
+                            $error_message = "Konto z tym adresem e-mail już istnieje";
+                        } else {
+                            $error_message = "Błąd podczas rejestracji";
+                        }
+                    }
                 }
             }
         }
@@ -43,29 +59,37 @@ class AuthController {
     }
     public function showLogin() {
         $login_error = '';
-
+        
+        $success_message = $_SESSION['flash_success'] ?? '';
+        unset($_SESSION['flash_success']);
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $email = trim($_POST['email'] ?? '');
+            $email = strtolower(trim($_POST['email'] ?? ''));
             $password = $_POST['password'] ?? '';
 
-            // Szukamy użytkownika po e-mailu
-            $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
-            $stmt->execute(['email' => $email]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            // additional email format check
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                // find user by email
+                $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
+                $stmt->execute(['email' => $email]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Weryfikujemy, czy użytkownik istnieje i czy hasło pasuje do hasha z bazy
-            if ($user && password_verify($password, $user['password_hash'])) {
-                
-                // Tworzymy sesję
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['role'] = $user['role'];
-                $_SESSION['first_name'] = $user['first_name'];
+                // user is registered in database and passwords match
+                if ($user && password_verify($password, $user['password_hash'])) {
+                    
+                    // create session for user
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['first_name'] = $user['first_name'];
 
-                // 4. Przekierowujemy na stronę główną
-                header("Location: index.php?page=home");
-                exit;
+                    // redirect to main page
+                    header("Location: index.php?page=home");
+                    exit;
+                } else {
+                    $login_error = "Nieprawidłowy adres e-mail lub hasło.";
+                }
             } else {
-                $login_error = "Nieprawidłowy adres e-mail lub hasło.";
+                $login_error = "Nieprawidłowy format e-mail.";
             }
         }
         require_once '../views/login.php';

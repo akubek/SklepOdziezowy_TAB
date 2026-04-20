@@ -30,7 +30,7 @@
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Adres e-mail</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" style="text-transform: lowercase;" class="form-control" id="email" name="email" required autocapitalize="none">
                             <div class="invalid-feedback">Podaj poprawny format adresu e-mail (np. jan@kowalski.pl).</div>
                         </div>
                         <div class="mb-3">

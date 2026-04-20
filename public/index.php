@@ -8,6 +8,7 @@ require_once '../src/controllers/CategoryController.php';
 require_once '../src/controllers/ProductController.php';
 require_once '../src/controllers/CartController.php';
 require_once '../src/controllers/AuthController.php';
+require_once '../src/helpers.php';
 
 $pdo = Database::getConnection();
 
