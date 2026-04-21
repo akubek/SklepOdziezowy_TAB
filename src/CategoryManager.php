@@ -48,4 +48,3 @@ class CategoryManager {
         return $path;
     }
 }
-?>

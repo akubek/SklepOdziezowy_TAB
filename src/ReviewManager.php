@@ -82,4 +82,3 @@ class ReviewManager {
         return $stmt->fetch() ? true : false;
     }
 }
-?>

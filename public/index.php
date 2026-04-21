@@ -1,8 +1,7 @@
 <?php
-ob_start();
-session_start();
-
-require_once '../src/Database.php';
+// public/index.php
+require_once '../bootstrap/init.php';
+require_once '../src/DatabaseConnection.php';
 require_once '../src/ProductManager.php';
 require_once '../src/CategoryManager.php';
 require_once '../src/ReviewManager.php';
@@ -13,87 +12,48 @@ require_once '../src/controllers/AuthController.php';
 require_once '../src/controllers/ReviewController.php';
 require_once '../src/helpers.php';
 
-$pdo = Database::getConnection();
+$pdo = null;
+$categoryManager = null;
+$productManager = null;
+$reviewManager = null;
+$rootCategories = [];
+$mainCategories = [];
 
-// --- INICJALIZACJA MENEDŻERÓW ---
-$productManager = new ProductManager($pdo);
-$categoryManager = new CategoryManager($pdo);
-$reviewManager = new ReviewManager($pdo);
-
-// --- NOWOCZESNY SYSTEM ROUTINGU (MAPA ŚCIEŻEK) ---
-$routes = [
-    'home' => function() {
-        require_once '../views/home.php';
-    },
-    'category' => function() use ($categoryManager, $productManager) {
-        $controller = new CategoryController($categoryManager, $productManager);
-        $controller->show($_GET['id'] ?? null);
-    },
-    'cart' => function() use ($productManager) {
-        $controller = new CartController($productManager);
-        $controller->show();
-    },
-    'product' => function() use ($productManager, $reviewManager) {
-        $controller = new ProductController($productManager, $reviewManager);
-        $controller->show($_GET['id'] ?? null);
-    },
-    'login' => function() use ($pdo) {
-        $controller = new AuthController($pdo);
-        $controller->showLogin();
-    },
-    'logout' => function() use ($pdo) {
-        $controller = new AuthController($pdo);
-        $controller->logout();
-    },
-    'register' => function() use ($pdo) {
-        $controller = new AuthController($pdo);
-        $controller->showRegister();
-    },
-    'add_review' => function() use ($reviewManager) {
-        $controller = new ReviewController($reviewManager);
-        $controller->add();
-    },
-    'delete_review' => function() use ($reviewManager) {
-        $controller = new ReviewController($reviewManager);
-        $controller->delete();
-    },
-    'profile' => function() use ($pdo) {
-        $authController = new AuthController($pdo);
-        $authController->showProfile();
-    },
-    'change-password' => function() use ($pdo) {
-        $authController = new AuthController($pdo);
-        $authController->changePassword();
-    },
-    '404' => function() {
-        echo "
-        <div class='text-center py-5 my-5'>
-            <h1 class='display-1 fw-bold text-muted'>404</h1>
-            <h2 class='mb-4'>Oops! Strona nie znaleziona.</h2>
-            <p class='lead mb-4'>Wygląda na to, że zgubiłeś się w naszym sklepie.</p>
-            <a href='index.php?page=home' class='btn btn-primary btn-lg'>Wróć na stronę główną</a>
-        </div>
-        ";
-    }
-];
-
-// --- LOGIKA WIDOKU GLOBALNEGO ---
+// global view logic
 $page = $_GET['page'] ?? 'home';
 
-if (!array_key_exists($page,$routes)) {
+try {
+    // 2. Próba połączenia i inicjalizacja managerów
+    $pdo = DatabaseConnection::getConnection();
+    
+    $categoryManager = new CategoryManager($pdo);
+    $productManager = new ProductManager($pdo);
+    $reviewManager = new ReviewManager($pdo);
+
+    // 3. Dane do nagłówka (wymagają bazy!)
+    $rootCategories = $categoryManager->getRootCategories();
+    $firstRootCatId = !empty($rootCategories) ? $rootCategories[0]['id'] : null;
+    $mainCategories = $firstRootCatId ? $categoryManager->getSubcategories($firstRootCatId) : [];
+
+} catch (Exception $e) {
+    error_log("CRITICAL ERROR: " . get_class($e) . ": " . $e->getMessage());
+    http_response_code(500);
+    $page = '500';
+}
+
+$routes = require_once "../config/routes.php";
+
+if ($page !== '500' && !array_key_exists($page,$routes)) {
     http_response_code(404);
     $page = '404';
 }
 
-// load categories - displayed in header
-$rootCategories = $categoryManager->getRootCategories();
-$firstRootCatId = !empty($rootCategories) ? $rootCategories[0]['id'] : null;
-$mainCategories = $firstRootCatId ? $categoryManager->getSubcategories($firstRootCatId) : [];
-
-// --- RENDEROWANIE STRONY ---
-require_once '../views/partials/header.php';
-
-$routes[$page]();
-
-require_once '../views/partials/footer.php';
+if ($page === '500') {
+    $routes['500']();
+} else {
+     // render page
+    require_once '../views/partials/header.php';
+    $routes[$page]();
+    require_once '../views/partials/footer.php';
+}
 ?>
