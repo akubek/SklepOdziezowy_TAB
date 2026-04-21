@@ -1,7 +1,6 @@
 <?php
-ob_start();
-session_start();
-
+// public/index.php
+require_once '../bootstrsap/init.php';
 require_once '../src/Database.php';
 require_once '../src/ProductManager.php';
 require_once '../src/CategoryManager.php';
