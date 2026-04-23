@@ -28,7 +28,7 @@
     <span class="text-muted">Ilość produktów: <?= count($products) ?></span>
 </div>
 
-<?php require BASE_PATH . '/partials/product_grid.php'; ?>
+<?php require BASE_PATH . '/views/partials/product_grid.php'; ?>
 
 <div class="text-center mb-5">
     <a href="index.php?page=home" class="btn btn-outline-secondary">

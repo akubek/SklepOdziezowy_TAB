@@ -1,6 +1,6 @@
 <?php
 // public/index.php
-require_once __DIR__ '/../bootstrap/init.php';
+require_once __DIR__ . '/../bootstrap/init.php';
 require_once BASE_PATH . '/src/DatabaseConnection.php';
 require_once BASE_PATH . '/src/ProductManager.php';
 require_once BASE_PATH . '/src/CategoryManager.php';

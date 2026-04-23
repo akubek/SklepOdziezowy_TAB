@@ -3,4 +3,4 @@
     <span class="text-muted">Znaleziono produktów: <?= count($products) ?></span>
 </div>
 
-<?php require BASE_PATH . '/partials/product_grid.php'; ?>
+<?php require BASE_PATH . '/views/partials/product_grid.php'; ?>

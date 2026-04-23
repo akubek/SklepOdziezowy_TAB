@@ -19,7 +19,7 @@ ini_set('display_errors', '1');
 // 4. GLOBALNE USTAWIENIA (np. strefa czasowa dla poprawnych dat zamówień)
 date_default_timezone_set('Europe/Warsaw');
 
-$envPath = BASE_PATH . '/../.env';
+$envPath = BASE_PATH . '/.env';
 
 if (file_exists($envPath)) {
     $parsedEnv = parse_ini_file($envPath);
