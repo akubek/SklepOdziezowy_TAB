@@ -96,5 +96,10 @@ class ProductManager {
         $stmt->execute($variantIds);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getLatestProducts($limit = 4) {
+        $stmt = $this->pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT " . (int)$limit);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
 }

@@ -13,13 +13,13 @@ class CategoryManager {
     }
 
     // Pobiera podkategorie dla konkretnego rodzica
-    public function getSubcategories($parentId) {
+    public function getSubCategories($parentId) {
         $stmt = $this->pdo->prepare("SELECT * FROM categories WHERE parent_id = :parent_id");
         $stmt->bindValue(':parent_id', $parentId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
+
     // Pobiera dane konkretnej kategorii (żeby wyświetlić jej nazwę w nagłówku)
     public function getCategoryById($id) {
         $stmt = $this->pdo->prepare("SELECT * FROM categories WHERE id = :id");

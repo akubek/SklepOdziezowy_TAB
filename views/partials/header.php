@@ -1,3 +1,10 @@
+<?php
+$categoryManager = $container['categoryManager']($container);
+
+$mainCategories = $categoryManager->getSubCategories(1);
+?>
+
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>

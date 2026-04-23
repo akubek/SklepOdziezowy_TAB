@@ -1,59 +1,54 @@
 <?php
 // public/index.php
 require_once __DIR__ . '/../bootstrap/init.php';
-require_once BASE_PATH . '/src/DatabaseConnection.php';
-require_once BASE_PATH . '/src/ProductManager.php';
-require_once BASE_PATH . '/src/CategoryManager.php';
-require_once BASE_PATH . '/src/ReviewManager.php';
-require_once BASE_PATH . '/src/controllers/CategoryController.php';
-require_once BASE_PATH . '/src/controllers/ProductController.php';
-require_once BASE_PATH . '/src/controllers/CartController.php';
-require_once BASE_PATH . '/src/controllers/AuthController.php';
-require_once BASE_PATH . '/src/controllers/ReviewController.php';
-require_once BASE_PATH . '/src/helpers.php';
-
-$pdo = null;
-$categoryManager = null;
-$productManager = null;
-$reviewManager = null;
-$rootCategories = [];
-$mainCategories = [];
-
-// global view logic
-$page = $_GET['page'] ?? 'home';
 
 try {
-    // 2. Próba połączenia i inicjalizacja managerów
-    $pdo = DatabaseConnection::getConnection();
+    //prepare structures, container with data that is injected, and routes to map pages to actions
+    $container = require_once BASE_PATH . '/bootstrap/dependencies.php';
+    $routes = require_once BASE_PATH . '/config/routes.php';
     
-    $categoryManager = new CategoryManager($pdo);
-    $productManager = new ProductManager($pdo);
-    $reviewManager = new ReviewManager($pdo);
+    $page = $_GET['page'] ?? 'home';
 
-    // 3. Dane do nagłówka (wymagają bazy!)
-    $rootCategories = $categoryManager->getRootCategories();
-    $firstRootCatId = !empty($rootCategories) ? $rootCategories[0]['id'] : null;
-    $mainCategories = $firstRootCatId ? $categoryManager->getSubcategories($firstRootCatId) : [];
+    // check if page exitsts
+    if (!array_key_exists($page, $routes)) {
+        $page = '404';
+        http_response_code(404); //todo move to Error controller logic
+    }
 
-} catch (Exception $e) {
-    error_log("CRITICAL ERROR: " . get_class($e) . ": " . $e->getMessage());
+    global $container; //todo move?
+    require BASE_PATH . '/views/partials/header.php';
+    $routes[$page]($container); //todo move to renderView, and move renderView to actual controller logic (how to display)
+    require BASE_PATH . '/views/partials/footer.php';
+
+} catch (Throwable $e) { // thorwable to catch everything
+    error_log("CRITICAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
+    
     http_response_code(500);
-    $page = '500';
+     
+    if (file_exists(BASE_PATH . '/views/errors/500.php')) {
+        require BASE_PATH . '/views/errors/500.php';
+    } else { // fallback to default 500 message
+        header('Content-Type: text/html; charset=utf-8');
+        echo '<!DOCTYPE html>
+        <html lang="pl">
+        <head>
+            <meta charset="UTF-8">
+            <title>Awaria systemu</title>
+            <style>
+                body { font-family: sans-serif; line-height: 1.5; padding: 10%; text-align: center; color: #444; background: #fdfdfd; }
+                h1 { color: #dc3545; }
+                .box { border: 1px solid #ddd; padding: 20px; display: inline-block; background: #fff; }
+            </style>
+        </head>
+        <body>
+            <div class="box">
+                <h1>Błąd krytyczny</h1>
+                <p>Przepraszamy, aplikacja napotkała poważny problem techniczny.</p>
+                <p><small>Kod błędu: 500 | Spróbuj odświeżyć stronę za chwilę.</small></p>
+            </div>
+        </body>
+        </html>';
+    }
 }
 
-$routes = require_once BASE_PATH . "/config/routes.php";
-
-if ($page !== '500' && !array_key_exists($page,$routes)) {
-    http_response_code(404);
-    $page = '404';
-}
-
-if ($page === '500') {
-    $routes['500']();
-} else {
-     // render page
-    require_once BASE_PATH . '/views/partials/header.php';
-    $routes[$page]();
-    require_once BASE_PATH . '/views/partials/footer.php';
-}
 ?>
