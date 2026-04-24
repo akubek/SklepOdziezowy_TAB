@@ -122,7 +122,7 @@ class AuthController
     {
         // Sprawdzenie autoryzacji
         if (!isset($_SESSION['user_id'])) {
-            header('Location: index.php?page=login');
+            header('Location: index.php?page=403');
             exit;
         }
 

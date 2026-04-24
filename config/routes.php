@@ -1,34 +1,27 @@
 <?php
 // config/routes.php
 return [
-    'home' => function($c) {
-        $c['homeController']($c)->index();
-    },
+    'home'      => fn($c) => $c['homeController']($c)->index(),
 
-    'category' => function($c) {
-        $c['categoryController']($c)->show($_GET['id'] ?? null);
-    },
+    'category'  => fn($c) => $c['categoryController']($c)->show($_GET['id'] ?? null),
 
-    'cart' => function($c) {
-        $c['cartController']($c)->show();
-    },
+    'cart'      => fn($c) => $c['cartController']($c)->show(),
 
-    'product' => function($c) {
-        $c['productController']($c)->show($_GET['id'] ?? null);
-    },
+    'product'   => fn($c) => $c['productController']($c)->show($_GET['id'] ?? null),
 
     // Grupa Auth
-    'login'           => function($c) { $c['authController']($c)->showLogin(); },
-    'logout'          => function($c) { $c['authController']($c)->logout(); },
-    'register'        => function($c) { $c['authController']($c)->showRegister(); },
-    'profile'         => function($c) { $c['authController']($c)->showProfile(); },
-    'change-password' => function($c) { $c['authController']($c)->changePassword(); },
+    'login'             => fn($c) => $c['authController']($c)->showLogin(),
+    'logout'            => fn($c) => $c['authController']($c)->logout(),
+    'register'          => fn($c) => $c['authController']($c)->showRegister(),
+    'profile'           => fn($c) => $c['authController']($c)->showProfile(),
+    'change-password'   => fn($c) => $c['authController']($c)->changePassword(),
 
     // Recenzje
-    'add_review'      => function($c) { $c['reviewController']($c)->add(); },
-    'delete_review'   => function($c) { $c['reviewController']($c)->delete(); },
+    'add_review'      => fn($c) => $c['reviewController']($c)->add(),
+    'delete_review'   => fn($c) => $c['reviewController']($c)->delete(),
 
     // Obsługa błędów (przez ErrorController)
-    '404' => function($c) { $c['errorController']($c)->notFound(); },
-    '500' => function($c) { $c['errorController']($c)->internalError(); }
+    '403' => fn($c) => $c['errorController']($c)->forbidden(),
+    '404' => fn($c) => $c['errorController']($c)->notFound(),
+    '500' => fn($c) => $c['errorController']($c)->internalError()
 ];
