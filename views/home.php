@@ -29,55 +29,25 @@
                 </div>
             </div>
         <?php endforeach; ?>
-    <?php else: ?>
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 position-relative">
-                <img src="https://placehold.co/600x400/eeeeee/999999?text=Odziez+Meska" class="card-img-top object-fit-cover" alt="Męska" style="height: 250px;">
-                <div class="card-body text-center">
-                    <h3 class="card-title fw-bold mb-0">Odzież Męska</h3>
-                    <a href="index.php?page=category&id=11" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 position-relative">
-                <img src="https://placehold.co/600x400/eeeeee/999999?text=Odziez+Damska" class="card-img-top object-fit-cover" alt="Damska" style="height: 250px;">
-                <div class="card-body text-center">
-                    <h3 class="card-title fw-bold mb-0">Odzież Damska</h3>
-                    <a href="index.php?page=category&id=12" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 position-relative">
-                <img src="https://placehold.co/600x400/eeeeee/999999?text=Odziez+Dziecieca" class="card-img-top object-fit-cover" alt="Dziecięca" style="height: 250px;">
-               <div class="card-body text-center">
-                    <h3 class="card-title fw-bold mb-0">Odzież Dziecięca</h3>
-                    <a href="index.php?page=category&id=13" class="stretched-link"></a>
-                </div>
-            </div>
-        </div>
     <?php endif; ?>
 </div>
 
 <h2 class="mb-4 text-center fw-bold">Ostatnio dodane perełki</h2>
 
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-5">
-    <?php for ($i = 1; $i <= 4; $i++): ?>
+    <?php foreach ($latestProducts as $product): ?>
         <div class="col">
             <div class="card h-100 shadow-sm border-0">
-                <img src="https://placehold.co/400x500/f8f9fa/343a40?text=Produkt+<?= $i ?>" class="card-img-top object-fit-cover" alt="Produkt" style="height: 300px;">
+                <img src="https://placehold.co/400x500?text=<?= urlencode($product['name']) ?>" class="card-img-top object-fit-cover" style="height: 300px;">
                 <div class="card-body d-flex flex-column">
-                    <h5 class="card-title text-truncate">Koszulka Super Premium Model <?= $i ?></h5>
-                    <p class="card-text text-muted small mb-3">Krótki opis lub kategoria</p>
+                    <h5 class="card-title text-truncate"><?= htmlspecialchars($product['name']) ?></h5>
+                    <p class="card-text text-muted small mb-3"><?= htmlspecialchars($product['description'] ?? '') ?></p>
                     <div class="mt-auto d-flex justify-content-between align-items-center">
-                        <span class="fs-5 fw-bold text-primary">129,99 zł</span>
-                        <button class="btn btn-sm btn-outline-primary add-to-cart">
-                            Do koszyka
-                        </button>
+                        <span class="fs-5 fw-bold text-primary"><?= number_format($product['price'], 2, ',', ' ') ?> zł</span>
+                        <button class="btn btn-sm btn-outline-primary">Do koszyka</button>
                     </div>
                 </div>
             </div>
         </div>
-    <?php endfor; ?>
+    <?php endforeach; ?>
 </div>

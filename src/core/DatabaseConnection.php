@@ -5,7 +5,7 @@ class DatabaseConnection {
     public static function getConnection() {
         if (self::$pdo === null) {
             
-            $config = require_once '../config/database.php';
+            $config = require_once BASE_PATH . '/config/database.php';
             
             $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']};";
             
