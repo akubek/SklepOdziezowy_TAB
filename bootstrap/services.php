@@ -13,42 +13,42 @@
 
 return [
     // PDO instance - connection with database
-    'pdo' => function($c) {
-        require_once BASE_PATH . '/src/DatabaseConnection.php';
+    'pdo' => function ($c) {
+        require_once BASE_PATH . '/src/core/DatabaseConnection.php';
         return DatabaseConnection::getConnection(); //singleton, careful if changed
     },
 
     // Managers
-    'categoryManager' => function($c) {
+    'categoryManager' => function ($c) {
         //singleton isnstance is optimal
         static $instance;
         if ($instance === null) {
-            require_once BASE_PATH . '/src/CategoryManager.php';
+            require_once BASE_PATH . '/src/managers/CategoryManager.php';
             $instance = new CategoryManager($c['pdo']($c));
         }
         return $instance;
     },
 
-    'productManager' => function($c) {
+    'productManager' => function ($c) {
         static $instance;
         if ($instance === null) {
-            require_once BASE_PATH . '/src/ProductManager.php';
+            require_once BASE_PATH . '/src/managers/ProductManager.php';
             $instance = new ProductManager($c['pdo']($c));
         }
         return $instance;
     },
 
-    'reviewManager' => function($c) {
+    'reviewManager' => function ($c) {
         static $instance;
         if ($instance === null) {
-            require_once BASE_PATH . '/src/ReviewManager.php';
+            require_once BASE_PATH . '/src/managers/ReviewManager.php';
             $instance = new ReviewManager($c['pdo']($c));
         }
         return $instance;
     },
 
     //Controllers
-    'authController' => function($c) {
+    'authController' => function ($c) {
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/AuthController.php';
@@ -57,7 +57,7 @@ return [
         return $instance;
     },
 
-    'cartController' => function($c) {
+    'cartController' => function ($c) {
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/CartController.php';
@@ -66,7 +66,7 @@ return [
         return $instance;
     },
 
-    'categoryController' => function($c) {
+    'categoryController' => function ($c) {
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/CategoryController.php';
@@ -75,16 +75,16 @@ return [
         return $instance;
     },
 
-    'homeController' => function($c) {
+    'homeController' => function ($c) {
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/HomeController.php';
-            $instance = new HomeController($c['categoryManager']($c),$c['productManager']($c));
+            $instance = new HomeController($c['categoryManager']($c), $c['productManager']($c));
         }
         return $instance;
     },
 
-    'productController' => function($c) {
+    'productController' => function ($c) {
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/ProductController.php';
@@ -93,7 +93,7 @@ return [
         return $instance;
     },
 
-    'reviewController' => function($c) {
+    'reviewController' => function ($c) {
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/ReviewController.php';
@@ -102,7 +102,7 @@ return [
         return $instance;
     },
 
-    'errorController' => function($c) {
+    'errorController' => function ($c) {
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/ErrorController.php';
