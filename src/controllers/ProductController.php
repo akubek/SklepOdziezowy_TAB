@@ -1,29 +1,37 @@
 <?php
-class ProductController {
+class ProductController
+{
     private $productManager;
     private $reviewManager;
 
     // Odbieramy dwa menedżery w konstruktorze
-    public function __construct($productManager, $reviewManager) { 
+    public function __construct($productManager, $reviewManager)
+    {
         $this->productManager = $productManager;
-        $this->reviewManager = $reviewManager; 
+        $this->reviewManager = $reviewManager;
     }
 
-    public function show($productId) {
+    public function show($productId)
+    {
         if ($productId) {
             $product = $this->productManager->getProductWithVariants($productId);
-            
+            error_log(implode($product));
+
             if ($product) {
                 $reviews = $this->reviewManager->getReviewsByProductId($productId);
                 $ratingData = $this->reviewManager->getAverageRating($productId);
-                
+
                 //Sprawdzenie czy zalogowany użytkownik dodał już opinię
                 $hasReviewed = false;
                 if (isset($_SESSION['user_id'])) {
                     $hasReviewed = $this->reviewManager->hasUserReviewedProduct($_SESSION['user_id'], $productId);
                 }
-
-                require_once BASE_PATH . '/views/product_details.php';
+                renderView('product_details', [
+                    'product' => $product,
+                    'reviews' => $reviews,
+                    'ratingData' => $ratingData,
+                    'hasReviewed' => $hasReviewed
+                ]);
             } else {
                 echo "<div class='alert alert-warning text-center mt-5'>Nie znaleziono takiego produktu.</div>";
             }

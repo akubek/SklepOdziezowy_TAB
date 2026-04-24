@@ -3,7 +3,8 @@
 /**
  * Safely display text data in HTML (prevent XSS)
  */
-function e(?string $text): string {
+function e(?string $text): string
+{
     // if null return empty string
     if ($text === null) {
         return '';
@@ -11,10 +12,13 @@ function e(?string $text): string {
     return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-function renderView(string $viewName, array $data = []) {
+function renderView(string $viewName, array $data = [])
+{
+    global $container;
     extract($data); // Zmienne (np. $title, $products) będą dostępne we wszystkich 3 plikach
-    
-    require BASE_PATH . '/views/partials/header.php';
+
+    ob_start();
     require BASE_PATH . "/views/{$viewName}.php";
-    require BASE_PATH . '/views/partials/footer.php';
+    $content = ob_get_clean();
+    require BASE_PATH . '/views/layouts/main.php'; // uses $content and possibly $container
 }

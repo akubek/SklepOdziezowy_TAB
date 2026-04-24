@@ -1,32 +1,43 @@
 <?php
-class CategoryController {
+class CategoryController
+{
     private $categoryManager;
     private $productManager;
 
-    public function __construct($categoryManager, $productManager) {
+    public function __construct($categoryManager, $productManager)
+    {
         $this->categoryManager = $categoryManager;
         $this->productManager = $productManager;
     }
 
-    public function show($categoryId) {
+    public function show($categoryId)
+    {
         $categoryId = $_GET['id'] ?? null;
         if ($categoryId) {
             $currentCategory = $this->categoryManager->getCategoryById($categoryId);
             $categoryPath = $this->categoryManager->getCategoryPath($categoryId);
             $subcategories = $this->categoryManager->getSubcategories($categoryId);
-            
-            require_once BASE_PATH . '/views/partials/breadcrumb.php';
 
             if (!empty($subcategories)) {
                 $products = $this->productManager->getProductsByCategory($categoryId, 9, 'newest');
-                require_once BASE_PATH . '/views/category_list.php';
+                renderView('category_list', [
+                    'currentCategory' => $currentCategory,
+                    'categoryPath'    => $categoryPath,
+                    'subcategories'   => $subcategories,
+                    'products'        => $products
+                ]);
             } else {
                 $sort = $_GET['sort'] ?? 'newest';
                 $products = $this->productManager->getProductsByCategory($categoryId, null, $sort);
-                require_once BASE_PATH . '/views/product_list.php';
+                renderView('product_list', [
+                    'currentCategory' => $currentCategory,
+                    'categoryPath'    => $categoryPath,
+                    'products'        => $products,
+                    'sort'           => $sort
+                ]);
             }
         } else {
             echo "<div class='alert alert-danger'>Brak ID kategorii w adresie URL.</div>";
-        }    
+        }
     }
 }

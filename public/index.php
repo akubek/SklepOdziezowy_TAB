@@ -8,20 +8,17 @@ try {
     $routes = require_once BASE_PATH . '/config/routes.php';
 
     $page = $_GET['page'] ?? 'home';
-
     // check if page exitsts
     if (!array_key_exists($page, $routes)) {
         $page = '404';
         http_response_code(404); //todo move to Error controller logic
     }
-
-    global $container; //todo move?
-    require BASE_PATH . '/views/partials/header.php';
-    $routes[$page]($container); //todo move to renderView, and move renderView to actual controller logic (how to display)
-    require BASE_PATH . '/views/partials/footer.php';
+    $routes[$page]($container);
 } catch (Throwable $e) { // thorwable to catch everything
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
     error_log("CRITICAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
-
     http_response_code(500);
 
     if (file_exists(BASE_PATH . '/views/errors/500.php')) {

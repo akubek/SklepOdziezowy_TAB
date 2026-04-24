@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('product-container');
-    
+
     // check if this is the product-container page 
     if (!container) return;
 
@@ -11,23 +11,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const stockTag = document.getElementById('stock-info');
     const addToCartBtn = document.getElementById('add-to-cart-btn');
 
+
     // handle variant change (image, price modifier, inventory) 
     selector.addEventListener('change', (e) => {
         const variantId = e.target.value;
         const variant = variants.find(v => v.id == variantId);
-        
+
         if (variant) {
             const basePrice = parseFloat(container.dataset.basePrice || 0);
+            console.log(basePrice);
             priceTag.innerText = (basePrice + parseFloat(variant.price_modifier)).toFixed(2) + ' zł';
-            
+
             const images = JSON.parse(variant.images);
             if (images.length > 0) imageTag.src = images[0];
-            
+
             stockTag.innerText = `Dostępność: ${variant.stock_quantity} szt.`;
             addToCartBtn.disabled = variant.stock_quantity <= 0;
         }
     });
-    
+
     // load first variant in the list 
     selector.dispatchEvent(new Event('change'));
 
@@ -37,8 +39,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!variantId) return;
 
         let cart = {};
-        const currentCookie = getCookie('cart'); 
-        
+        const currentCookie = getCookie('cart');
+
         if (currentCookie) {
             try {
                 cart = JSON.parse(currentCookie);
@@ -51,15 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
             cart[variantId] = 1;
         }
 
-        setCookie('cart', JSON.stringify(cart), 7); 
-        updateCartBadge(); 
-        
+        setCookie('cart', JSON.stringify(cart), 7);
+        updateCartBadge();
+
         // button effect on adding item 
         const originalText = addToCartBtn.innerText;
         addToCartBtn.innerText = "Dodano!";
         addToCartBtn.classList.add('btn-success');
         addToCartBtn.classList.remove('btn-primary');
-        
+
         setTimeout(() => {
             addToCartBtn.innerText = originalText;
             addToCartBtn.classList.add('btn-primary');

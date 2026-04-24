@@ -1,12 +1,15 @@
 <?php
-class CartController {
+class CartController
+{
     private $productManager;
 
-    public function __construct($productManager) {
+    public function __construct($productManager)
+    {
         $this->productManager = $productManager;
     }
 
-    public function show() {
+    public function show()
+    {
         $cart = isset($_COOKIE['cart']) ? json_decode($_COOKIE['cart'], true) : [];
         $items = [];
         $totalPrice = 0;
@@ -14,12 +17,12 @@ class CartController {
         if (!empty($cart)) {
             $variantIds = array_keys($cart);
             $variants = $this->productManager->getVariantsWithProductInfo($variantIds);
-            
+
             foreach ($variants as $v) {
                 $qty = $cart[$v['variant_id']];
                 $unitPrice = $v['base_price'] + $v['price_modifier'];
                 $subtotal = $unitPrice * $qty;
-                
+
                 $items[] = [
                     'variant_id' => $v['variant_id'],
                     'name' => $v['product_name'],
@@ -33,6 +36,10 @@ class CartController {
                 $totalPrice += $subtotal;
             }
         }
-        require_once BASE_PATH . '/views/cart.php';
+        renderView('cart', [
+            'cart' => $cart,
+            'items' => $items,
+            'totalPrice' => $totalPrice
+        ]);
     }
 }

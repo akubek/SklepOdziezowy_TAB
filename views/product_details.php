@@ -1,15 +1,17 @@
-<div class="row" id="product-container" data-variants='<?= json_encode($product['variants']) ?>'>
+<div class="row" id="product-container"
+    data-variants='<?= json_encode($product['variants']) ?>'
+    data-base-price='<?= $product['base_price'] ?>'>
     <div class="col-md-6">
         <img id="main-product-image" src="https://placehold.co/600x800" class="img-fluid" alt="">
     </div>
     <div class="col-md-6">
         <h1><?= htmlspecialchars($product['name']) ?></h1>
         <h2 id="current-price" class="text-primary"><?= number_format($product['base_price'], 2) ?> zł</h2>
-        
+
         <div class="mt-4">
             <h5>Wybierz wariant:</h5>
             <select id="variant-selector" class="form-select">
-                <?php foreach ($product['variants'] as $variant): 
+                <?php foreach ($product['variants'] as $variant):
                     $attrs = json_decode($variant['attributes'], true); ?>
                     <option value="<?= $variant['id'] ?>">
                         <?= $attrs['size'] ?? '' ?> <?= $attrs['color'] ?? '' ?> (SKU: <?= $variant['sku'] ?>)
@@ -81,7 +83,7 @@
             </div>
         <?php endif; ?>
 
-       <div class="reviews-list">
+        <div class="reviews-list">
             <?php if (!empty($reviews)): ?>
                 <?php foreach ($reviews as $review): ?>
                     <div class="card mb-4 border-0 shadow-sm rounded">
@@ -89,7 +91,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <span class="fw-bold fs-5"><?= htmlspecialchars($review['first_name']) ?></span>
-                                    
+
                                     <?php if ($review['is_verified']): ?>
                                         <span class="badge bg-success ms-2"><small>✓ Zweryfikowany zakup</small></span>
                                     <?php endif; ?>
@@ -98,12 +100,12 @@
                                     <?= str_repeat('★', $review['rating']) ?><?= str_repeat('☆', 5 - $review['rating']) ?>
                                 </span>
                             </div>
-                            
+
                             <p class="mb-3"><?= nl2br(htmlspecialchars($review['comment'])) ?></p>
-                            
+
                             <div class="d-flex justify-content-between align-items-end mt-2">
                                 <small class="text-muted"><?= date('d.m.Y', strtotime($review['created_at'])) ?></small>
-                                
+
                                 <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $review['user_id']): ?>
                                     <div>
                                         <form action="index.php?page=delete_review" method="POST" class="d-inline" onsubmit="return confirm('Czy na pewno chcesz usunąć tę opinię?');">
@@ -114,13 +116,12 @@
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            
+
                         </div>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
 
-    </div> </div> ```
     </div>
 </div>

@@ -1,14 +1,17 @@
 <?php
-class ProductManager {
+class ProductManager
+{
     private $pdo;
 
     // connect to database PHP data object
-    public function __construct($pdo) {
+    public function __construct($pdo)
+    {
         $this->pdo = $pdo;
     }
 
     // get all products with thier categories
-    public function getAllProducts() {
+    public function getAllProducts()
+    {
         $sql = "
             SELECT p.id, p.name, p.base_price, c.name as category_name
             FROM products p
@@ -19,8 +22,9 @@ class ProductManager {
     }
 
     // load all products from given category and its subcategories. f.e. "męska -> tshirt+kurtki->(zimowe+inne+...)+koszule..."
-    public function getProductsByCategory($categoryId, $limit = null, $orderBy = 'newest') {
-        
+    public function getProductsByCategory($categoryId, $limit = null, $orderBy = 'newest')
+    {
+
         // Bezpieczne mapowanie sortowania (chroni przed SQL Injection)
         $orderings = [
             'newest'     => 'p.id DESC',
@@ -28,7 +32,7 @@ class ProductManager {
             'price_desc' => 'p.base_price DESC',
             'name_asc'   => 'p.name ASC'
         ];
-        
+
         // Jeśli ktoś przekaże błędny parametr, domyślnie bierzemy 'newest'
         $sqlOrder = $orderings[$orderBy] ?? $orderings['newest'];
 
@@ -45,24 +49,25 @@ class ProductManager {
             WHERE p.category_id IN (SELECT id FROM CategoryTree)
             ORDER BY $sqlOrder
         ";
-        
+
         // Jeśli podano limit, doklejamy go do zapytania
         if ($limit !== null) {
             $sql .= " LIMIT :limit";
         }
-        
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':category_id', $categoryId, PDO::PARAM_INT);
-        
+
         if ($limit !== null) {
             $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         }
-        
+
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } 
+    }
 
-    public function getProductWithVariants($productId) {
+    public function getProductWithVariants($productId)
+    {
         // get product by productId 
         $stmt = $this->pdo->prepare("SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id WHERE p.id = :id");
         $stmt->execute(['id' => $productId]);
@@ -78,9 +83,10 @@ class ProductManager {
         return $product;
     }
 
-    public function getVariantsWithProductInfo($variantIds) {
+    public function getVariantsWithProductInfo($variantIds)
+    {
         if (empty($variantIds)) return [];
-        
+
         $placeholders = implode(',', array_fill(0, count($variantIds), '?'));
         $sql = "
             SELECT 
@@ -91,15 +97,15 @@ class ProductManager {
             JOIN products p ON pv.product_id = p.id
             WHERE pv.id IN ($placeholders)
         ";
-        
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($variantIds);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getLatestProducts($limit = 4) {
+    public function getLatestProducts($limit = 4)
+    {
         $stmt = $this->pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT " . (int)$limit);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
 }

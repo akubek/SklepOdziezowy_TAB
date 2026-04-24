@@ -1,12 +1,15 @@
 ﻿<?php
-class AuthController {
+class AuthController
+{
     private $pdo;
 
-    public function __construct($pdo) {
+    public function __construct($pdo)
+    {
         $this->pdo = $pdo;
     }
 
-    public function showRegister() {
+    public function showRegister()
+    {
         $error_message = '';
         $success_message = '';
 
@@ -15,7 +18,7 @@ class AuthController {
             $lastName = trim($_POST['last_name'] ?? '');
             $email = strtolower(trim($_POST['email'] ?? ''));
             $password = $_POST['password'] ?? '';
-            
+
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error_message = "Niepoprawny format adresu e-mail.";
             } elseif (strlen($password) < 8) {
@@ -25,7 +28,7 @@ class AuthController {
             } else {
                 $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
                 $stmt->execute(['email' => $email]);
-                
+
                 if ($stmt->fetch()) {
                     $error_message = "Konto z tym adresem e-mail już istnieje!";
                 } else {
@@ -56,15 +59,19 @@ class AuthController {
                 }
             }
         }
-        require_once BASE_PATH . '/views/register.php';
+        renderView('register', [
+            'error_message'     => $error_message,
+            'success_message'   => $success_message
+        ]); //todo add old_input?
     }
 
-    public function showLogin() {
+    public function showLogin()
+    {
         $login_error = '';
-        
+
         $success_message = $_SESSION['flash_success'] ?? '';
         unset($_SESSION['flash_success']);
-        
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = strtolower(trim($_POST['email'] ?? ''));
             $password = $_POST['password'] ?? '';
@@ -78,7 +85,7 @@ class AuthController {
 
                 // user is registered in database and passwords match
                 if ($user && password_verify($password, $user['password_hash'])) {
-                    
+
                     // create session for user
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['role'] = $user['role'];
@@ -94,21 +101,26 @@ class AuthController {
                 $login_error = "Nieprawidłowy format e-mail.";
             }
         }
-        require_once BASE_PATH . '/views/login.php';
+        renderView('login', [
+            'login_error'       => $login_error,
+            'success_message'   => $success_message
+        ]);
     }
 
-    public function logout() {
+    public function logout()
+    {
         // Czyścimy wszystkie dane sesji
         session_unset();
         session_destroy();
-        
+
         // Przekierowujemy na stronę główną
         header("Location: index.php?page=home");
         exit;
     }
 
-    public function showProfile() {
-    // Sprawdzenie autoryzacji
+    public function showProfile()
+    {
+        // Sprawdzenie autoryzacji
         if (!isset($_SESSION['user_id'])) {
             header('Location: index.php?page=login');
             exit;
@@ -118,7 +130,7 @@ class AuthController {
         $stmt = $this->pdo->prepare("SELECT first_name, last_name, email, created_at FROM users WHERE id = :id");
         $stmt->execute(['id' => $_SESSION['user_id']]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         $success_message = '';
         $error_message = '';
 
@@ -126,7 +138,7 @@ class AuthController {
             $firstName = trim($_POST['first_name'] ?? '');
             $lastName = trim($_POST['last_name'] ?? '');
             $email = trim($_POST['email'] ?? '');
-            
+
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error_message = "Podaj poprawny adres e-mail.";
             } else {
@@ -135,7 +147,7 @@ class AuthController {
                     SET first_name = :first_name, last_name = :last_name, email = :email 
                     WHERE id = :id
                 ");
-                
+
                 if ($updateStmt->execute([
                     'first_name' => $firstName,
                     'last_name' => $lastName,
@@ -152,11 +164,16 @@ class AuthController {
                 }
             }
         }
-        require_once BASE_PATH . '/views/profile.php';
+        renderView('profile', [
+            'user'              => $user,
+            'success_message'   => $success_message,
+            'error_message'     => $error_message
+        ]);
     }
 
-    public function changePassword() {
-    // Sprawdzenie autoryzacji
+    public function changePassword()
+    {
+        // Sprawdzenie autoryzacji
         if (!isset($_SESSION['user_id'])) {
             header('Location: index.php?page=login');
             exit;
@@ -188,7 +205,7 @@ class AuthController {
                 // Aktualizacja hasła
                 $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
                 $updateStmt = $this->pdo->prepare("UPDATE users SET password_hash = :hash WHERE id = :id");
-                
+
                 if ($updateStmt->execute(['hash' => $newHash, 'id' => $_SESSION['user_id']])) {
                     $success_message = "Hasło zostało pomyślnie zmienione!";
                 } else {
@@ -203,7 +220,7 @@ class AuthController {
         if (!empty($error_message)) {
             $_SESSION['profile_error'] = $error_message;
         }
-        
+
         header('Location: index.php?page=profile');
         exit;
     }
