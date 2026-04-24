@@ -15,7 +15,6 @@ class ProductController
     {
         if ($productId) {
             $product = $this->productManager->getProductWithVariants($productId);
-            error_log(implode($product));
 
             if ($product) {
                 $reviews = $this->reviewManager->getReviewsByProductId($productId);

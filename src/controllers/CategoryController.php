@@ -12,11 +12,10 @@ class CategoryController
 
     public function show($categoryId)
     {
-        $categoryId = $_GET['id'] ?? null;
         if ($categoryId) {
             $currentCategory = $this->categoryManager->getCategoryById($categoryId);
             $categoryPath = $this->categoryManager->getCategoryPath($categoryId);
-            $subcategories = $this->categoryManager->getSubcategories($categoryId);
+            $subcategories = $this->categoryManager->getSubCategories($categoryId);
 
             if (!empty($subcategories)) {
                 $products = $this->productManager->getProductsByCategory($categoryId, 9, 'newest');

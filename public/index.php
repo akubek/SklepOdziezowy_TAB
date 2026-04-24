@@ -11,7 +11,6 @@ try {
     // check if page exitsts
     if (!array_key_exists($page, $routes)) {
         $page = '404';
-        http_response_code(404); //todo move to Error controller logic
     }
     $routes[$page]($container);
 } catch (Throwable $e) { // thorwable to catch everything

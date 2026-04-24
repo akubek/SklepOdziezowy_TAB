@@ -15,7 +15,7 @@ function e(?string $text): string
 function renderView(string $viewName, array $data = [])
 {
     global $container;
-    extract($data); // Zmienne (np. $title, $products) będą dostępne we wszystkich 3 plikach
+    extract($data, EXTR_SKIP); // Zmienne (np. $title, $products) będą dostępne we wszystkich 3 plikach
 
     ob_start();
     require BASE_PATH . "/views/{$viewName}.php";
