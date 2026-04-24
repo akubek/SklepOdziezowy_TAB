@@ -38,4 +38,27 @@ class ProductController
             echo "<div class='alert alert-danger text-center mt-5'>Brak ID produktu w adresie URL.</div>";
         }
     }
+
+    public function search(?string $query = null, ?string $sort = null)
+    {
+        $q = $query ?: trim($_GET['q']) ?? '';
+        $s = $sort ?: trim($_GET['sort']) ?? 'newest';
+
+        if (empty($q)) {
+            renderView('search_results', [
+                'products' => [],
+                'searchQuery' => '',
+                'title' => 'Wyniki wyszukiwania'
+            ]);
+            return;
+        }
+
+        $products = $this->productManager->searchProducts($q);
+
+        renderView('search_results', [
+            'products' => $products,
+            'searchQuery' => $q,
+            'title' => 'Wyniki dla: ' . e($q)
+        ]);
+    }
 }

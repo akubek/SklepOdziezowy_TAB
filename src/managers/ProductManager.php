@@ -108,4 +108,24 @@ class ProductManager
         $stmt = $this->pdo->query("SELECT * FROM products ORDER BY created_at DESC LIMIT " . (int)$limit);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function searchProducts(string $phrase): array
+    {
+        $searchTerm = "%{$phrase}%";
+
+        error_log("szukana fraza " . $searchTerm);
+
+        $sql = "SELECT p.*, c.name as category_name, parent.name as parent_category_name 
+                FROM products p
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN categories parent ON c.parent_id = parent.id
+                WHERE p.name LIKE :phrase 
+                OR p.description LIKE :phrase
+                ORDER BY p.created_at DESC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['phrase' => $searchTerm]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

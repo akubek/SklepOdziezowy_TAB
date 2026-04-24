@@ -8,6 +8,7 @@ return [
     'cart'      => fn($c) => $c['cartController']($c)->show(),
 
     'product'   => fn($c) => $c['productController']($c)->show($_GET['id'] ?? null),
+    'search'    => fn($c) => $c['productController']($c)->search(),
 
     // Grupa Auth
     'login'             => fn($c) => $c['authController']($c)->showLogin(),

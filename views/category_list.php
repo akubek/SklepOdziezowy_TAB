@@ -25,6 +25,7 @@
     <h2 class="h3 fw-bold m-0">Wszystkie nowości: <?= htmlspecialchars($currentCategory['name']) ?></h2>
     <span class="text-muted">Ilość produktów: <?= count($products) ?></span>
 </div>
+<?php $showCategoryBadge = false; ?>
 <?php require BASE_PATH . '/views/partials/product_grid.php'; ?>
 <div class="text-center mb-5">
     <a href="index.php?page=home" class="btn btn-outline-secondary">
