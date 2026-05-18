@@ -59,9 +59,53 @@ class ProfileController
     {
         $this->requireLogin();
         $orders = $this->orderManager->getOrdersForUser($_SESSION['user_id']);
+
+        $onlineMethods = ['payu', 'blik', 'transfer', 'online', 'bank_transfer'];
+
+        foreach ($orders as &$order) {
+            $order['requires_payment'] = (
+                $order['payment_status'] === 'UNPAID' &&
+                in_array($order['payment_method'], $onlineMethods) &&
+                $order['status'] !== 'CANCELLED'
+            );
+        }
+        unset($order);
+
         renderView('profile/orders', [
             'orders' => $orders,
             'active_tab' => 'orders'
+        ]);
+    }
+
+    public function orderDetails()
+    {
+        $this->requireLogin();
+
+        $orderId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+        if ($orderId <= 0) {
+            header('Location: index.php?page=profile_orders');
+            exit;
+        }
+
+        $order = $this->orderManager->getOrderSummary($orderId);
+
+        if (!$order || $order['user_id'] !== $_SESSION['user_id']) {
+            header('Location: index.php?page=403');
+            exit;
+        }
+
+        $onlineMethods = ['payu', 'blik', 'transfer', 'online', 'bank_transfer'];
+        $requiresPayment = (
+            $order['payment_status'] === 'UNPAID' &&
+            in_array($order['payment_method'], $onlineMethods) &&
+            $order['status'] !== 'CANCELLED'
+        );
+
+        renderView('profile/order_details', [
+            'order' => $order,
+            'active_tab' => 'orders',
+            'requires_payment' => $requiresPayment
         ]);
     }
 

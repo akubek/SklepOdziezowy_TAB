@@ -4,6 +4,36 @@ class ProductUnavailableException extends Exception {}
 
 class OrderManager
 {
+    public const STATUS_DICTIONARY = [
+        'NEW'              => ['label' => 'Nowe', 'color' => 'bg-info text-dark'],
+        'PROCESSING'       => ['label' => 'W realizacji', 'color' => 'bg-warning text-dark'],
+        'READY_FOR_PICKUP' => ['label' => 'Gotowe do odbioru', 'color' => 'bg-primary'],
+        'SHIPPED'          => ['label' => 'Wysłane', 'color' => 'bg-primary'],
+        'COMPLETED'        => ['label' => 'Zrealizowane', 'color' => 'bg-success'],
+        'CANCELLED'        => ['label' => 'Anulowane', 'color' => 'bg-danger'],
+    ];
+
+    public const PAYMENT_STATUS_DICTIONARY = [
+        'UNPAID'   => ['label' => 'Oczekuje na płatność', 'color' => 'bg-danger text-white'],
+        'PAID'     => ['label' => 'Opłacone', 'color' => 'bg-success text-white'],
+        'REFUNDED' => ['label' => 'Zwrócono', 'color' => 'bg-dark text-white'],
+    ];
+
+    public const DELIVERY_METHODS = [
+        'pickup'    => 'Odbiór osobisty',
+        'courier'   => 'Kurier',
+        'paczkomat' => 'Paczkomat InPost'
+    ];
+
+    public const PAYMENT_METHODS = [
+        'cash_on_delivery' => 'Płatność przy odbiorze',
+        'payu'             => 'Płatność online (PayU)',
+        'bank_transfer'    => 'Przelew tradycyjny',
+        'online'           => 'Płatność online',
+        'blik'             => 'BLIK',
+        'transfer'         => 'Przelew tradycyjny'
+    ];
+
     private $pdo;
 
     public function __construct($pdo)
@@ -163,7 +193,7 @@ class OrderManager
     public function getOrdersForUser($userId)
     {
         $stmt = $this->pdo->prepare("
-            SELECT id, total_price, status, delivery_method, payment_method, created_at
+            SELECT id, total_price, status, delivery_method, payment_method, payment_status, created_at
             FROM orders
             WHERE user_id = ?
             ORDER BY created_at DESC
@@ -175,7 +205,7 @@ class OrderManager
     public function getLatestOrderForUser($userId)
     {
         $stmt = $this->pdo->prepare("
-            SELECT id, total_price, status, created_at 
+            SELECT id, total_price, status, delivery_method, payment_method, payment_status, created_at
             FROM orders 
             WHERE user_id = ? 
             ORDER BY created_at DESC 

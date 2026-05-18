@@ -17,8 +17,9 @@ return [
 
     'profile'                   => fn($c) => $c['profileController']($c)->index(),
     'profile_orders'            => fn($c) => $c['profileController']($c)->orders(),
+    'profile_order_details'     => fn($c) => $c['profileController']($c)->orderDetails(),
     'profile_reviews'           => fn($c) => $c['profileController']($c)->reviews(),
-    'profile_review_delete'    => fn($c) => $c['profileController']($c)->deleteReview(),
+    'profile_review_delete'     => fn($c) => $c['profileController']($c)->deleteReview(),
     'profile_addresses'         => fn($c) => $c['profileController']($c)->addresses(),
     'profile_settings'          => fn($c) => $c['profileController']($c)->settings(),
     'change_password'           => fn($c) => $c['profileController']($c)->changePassword(),
