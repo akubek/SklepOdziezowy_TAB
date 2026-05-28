@@ -1,7 +1,7 @@
 <div class="card shadow-sm border-0 p-4 sticky-top" style="top: 20px;">
     <h5 class="mb-4">Podsumowanie zamówienia</h5>
 
-    <?php include BASE_PATH . '/views/partials/checkout/order_items_list.php'; ?>
+    <?php include BASE_PATH . '/views/partials/order_items_list.php'; ?>
 
     <hr>
 

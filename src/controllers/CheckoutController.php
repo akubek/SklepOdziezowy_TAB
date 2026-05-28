@@ -119,7 +119,6 @@ class CheckoutController
                 }
             }
 
-            // TODO LOGIKA TRANSAKCJI PDO (ZAPIS DO BAZY)
             try {
                 // created guest or user found in db by email
                 $finalUserId = null;

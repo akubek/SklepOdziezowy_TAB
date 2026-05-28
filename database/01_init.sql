@@ -17,7 +17,7 @@ DROP TYPE IF EXISTS discount_type_enum CASCADE;
 -- Initialize database structure
 
 -- Enums
-CREATE TYPE gender_type AS ENUM ('M', 'F', 'OTHER');
+CREATE TYPE gender_type AS ENUM ('MALE', 'F', 'OTHER');
 CREATE TYPE user_role_type AS ENUM ('CLIENT', 'EMPLOYEE', 'MANAGER', 'GUEST');
 CREATE TYPE discount_type_enum AS ENUM ('PERCENTAGE', 'FIXED_AMOUNT');
 
@@ -96,7 +96,9 @@ CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     status VARCHAR(50) NOT NULL DEFAULT 'NEW',
-        CHECK (status IN ('NEW', 'PROCESSING', 'PAID', 'SHIPPED', 'COMPLETED', 'CANCELLED')),
+        CHECK (status IN ('NEW', 'PROCESSING', 'READY_FOR_PICKUP', 'SHIPPED', 'COMPLETED', 'CANCELLED')),
+    payment_status VARCHAR(50) NOT NULL DEFAULT 'UNPAID',
+        CHECK (payment_status IN ('UNPAID', 'PAID', 'REFUNDED')),
     total_price DECIMAL(10,2) NOT NULL,
     applied_promotion_id INT REFERENCES promotions(id) ON DELETE SET NULL,
     shipping_address JSONB NOT NULL,
