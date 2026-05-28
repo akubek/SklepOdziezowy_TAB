@@ -22,7 +22,8 @@ return [
     'profile_review_delete'     => fn($c) => $c['profileController']($c)->deleteReview(),
     'profile_addresses'         => fn($c) => $c['profileController']($c)->addresses(),
     'profile_settings'          => fn($c) => $c['profileController']($c)->settings(),
-    'change_password'           => fn($c) => $c['profileController']($c)->changePassword(),
+    'profile_update'            => fn($c) => $c['profileController']($c)->update(),
+    'password_change'           => fn($c) => $c['profileController']($c)->changePassword(),
 
     // Recenzje
     'add_review'        => fn($c) => $c['reviewController']($c)->add(),

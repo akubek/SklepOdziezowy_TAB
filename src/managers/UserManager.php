@@ -10,14 +10,14 @@ class UserManager
 
     public function getUserById($id)
     {
-        $stmt = $this->pdo->prepare("SELECT id, email, first_name, last_name, phone_number, role, created_at FROM users WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT id, email, first_name, last_name, phone_number, role, birth_date, gender, created_at FROM users WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC); // Zwraca tablicę z danymi lub false
     }
 
     public function getUserByEmail($email)
     {
-        $stmt = $this->pdo->prepare("SELECT id, email, first_name, last_name, phone_number, role, created_at FROM users WHERE email = ?");
+        $stmt = $this->pdo->prepare("SELECT id, email, first_name, last_name, phone_number, role, birth_date, gender, created_at FROM users WHERE email = ?");
         $stmt->execute([$email]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -90,6 +90,10 @@ class UserManager
         return $stmt->execute([$newHash, $id]);
     }
 
+    /**
+     * Sprawdza, czy podany adres e-mail jest już zajęty przez INNEGO użytkownika.
+     * Używane do walidacji przy edycji profilu.
+     */
     public function isEmailTaken($email, $excludeUserId = null)
     {
         $sql = "SELECT 1 FROM users WHERE email = ? AND role != 'GUEST'";
@@ -103,5 +107,34 @@ class UserManager
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         return (bool)$stmt->fetch();
+    }
+
+    /**
+     * Aktualizuje dane profilowe użytkownika.
+     */
+    public function updateProfile($userId, $firstName, $lastName, $email, $phone, $birthDate, $gender)
+    {
+        // Używamy nazwanych parametrów (:nazwa) zamiast znaków zapytania (?), 
+        // ponieważ przy tak wielu zmiennych zapobiega to pomyłkom w kolejności.
+        $sql = "UPDATE users 
+                SET first_name = :first_name, 
+                    last_name = :last_name, 
+                    email = :email, 
+                    phone_number = :phone_number, 
+                    birth_date = :birth_date, 
+                    gender = :gender
+                WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        return $stmt->execute([
+            ':first_name'   => $firstName,
+            ':last_name'    => $lastName,
+            ':email'        => $email,
+            ':phone_number' => $phone ?: null,
+            ':birth_date'   => $birthDate ?: null,
+            ':gender'       => $gender ?: null,
+            ':id'           => $userId
+        ]);
     }
 }

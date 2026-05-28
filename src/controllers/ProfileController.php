@@ -150,4 +150,151 @@ class ProfileController
             'addresses' => $addresses
         ]);
     }
+
+    public function update()
+    {
+        $this->requireLogin();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userId = $_SESSION['user_id'];
+
+            // 1. wyczyszczenie danych
+            $firstName = trim($_POST['first_name'] ?? '');
+            $lastName = trim($_POST['last_name'] ?? '');
+            $email = strtolower(trim($_POST['email'] ?? ''));
+            $phone = trim($_POST['phone_number'] ?? '');
+            $birthDate = !empty($_POST['birth_date']) ? $_POST['birth_date'] : null;
+            $gender = !empty($_POST['gender']) ? $_POST['gender'] : null;
+
+            // walidacja
+
+            // format e-mail
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $_SESSION['profile_error'] = "Podano niepoprawny format adresu e-mail.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // format telefonu
+            if (!empty($phone) && !preg_match('/^\+?[0-9\s\-]{9,15}$/', $phone)) {
+                $_SESSION['profile_error'] = "Podano niepoprawny numer telefonu.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // daty urodzenia
+            if (!empty($birthDate)) {
+                $today = date('Y-m-d');
+                if ($birthDate > $today) {
+                    $_SESSION['profile_error'] = "Data urodzenia nie może być z przyszłości!";
+                    header('Location: index.php?page=profile_settings');
+                    exit;
+                }
+            }
+
+            // płeć
+            $allowedGenders = ['MALE', 'FEMALE', 'OTHER'];
+            if (!empty($gender) && !in_array($gender, $allowedGenders)) {
+                $_SESSION['profile_error'] = "Wybrano niepoprawną płeć.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // imię i nazwisko
+            if (empty($firstName) || empty($lastName)) {
+                $_SESSION['profile_error'] = "Imię i nazwisko są wymagane.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // sprawdzenie czy emial nie jest zajety
+            if ($this->userManager->isEmailTaken($email, $userId)) {
+                error_log("email zajety");
+                $_SESSION['profile_error'] = "Ten adres e-mail jest już zajęty przez innego użytkownika.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // walidacja pomyslana -> zaktualizowanie profilu
+            $success = $this->userManager->updateProfile($userId, $firstName, $lastName, $email, $phone, $birthDate, $gender);
+
+            if ($success) {
+                $_SESSION['profile_success'] = "Twoje dane zostały pomyślnie zaktualizowane.";
+                $_SESSION['first_name'] = $firstName;
+            } else {
+                $_SESSION['profile_error'] = "Wystąpił błąd serwera podczas zapisywania danych.";
+            }
+        }
+
+        header('Location: index.php?page=profile_settings');
+        exit;
+    }
+
+    public function changePassword()
+    {
+        $this->requireLogin();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userId = $_SESSION['user_id'];
+
+            // dane z formularza
+            $currentPassword = $_POST['current_password'] ?? '';
+            $newPassword = $_POST['new_password'] ?? '';
+            $confirmPassword = $_POST['confirm_password'] ?? '';
+
+            // walidacja
+
+            // nie moga byc puste
+            if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+                $_SESSION['profile_error'] = "Wszystkie pola są wymagane.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // czy nowe i potwierdzenie to to samo
+            if ($newPassword !== $confirmPassword) {
+                $_SESSION['profile_error'] = "Nowe hasło i jego powtórzenie nie są identyczne.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // min 8 znakow
+            if (strlen($newPassword) < 8) {
+                $_SESSION['profile_error'] = "Nowe hasło musi mieć co najmniej 8 znaków.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // obecny hash
+            $currentHashInDb = $this->userManager->getPasswordHash($userId);
+
+            // potwierdzenie hasla obecnego
+            if (!password_verify($currentPassword, $currentHashInDb)) {
+                $_SESSION['profile_error'] = "Obecne hasło jest nieprawidłowe.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // dodatkowe sprawdzenie czy nowe nie bedzie takie jak stare
+            if (password_verify($newPassword, $currentHashInDb)) {
+                $_SESSION['profile_error'] = "Nowe hasło nie może być takie samo jak obecne.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // pomyslne sprawddzenie -> ustawienie nowego hasla
+            // zhashowanie
+            $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+
+            // zapisanie hashu do bazy
+            if ($this->userManager->updatePassword($userId, $newHash)) {
+                $_SESSION['profile_success'] = "Twoje hasło zostało bezpiecznie zmienione.";
+            } else {
+                $_SESSION['profile_error'] = "Wystąpił błąd podczas zapisywania hasła w bazie.";
+            }
+        }
+
+        header('Location: index.php?page=profile_settings');
+        exit;
+    }
 }

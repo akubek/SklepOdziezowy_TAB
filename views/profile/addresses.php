@@ -1,3 +1,17 @@
+<?php if ($success_message && $success_message !== '') : ?>
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <?= e($success_message); ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
+<?php if ($error_message && $error_message !== ''): ?>
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <?= e($error_message) ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+<?php endif; ?>
+
 <div class="container py-5">
     <div class="row">
         <div class="col-md-4 col-lg-3 mb-4">

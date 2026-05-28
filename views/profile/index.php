@@ -2,21 +2,19 @@
 // views/profile/index.php
 
 // Komunikaty o sukcesie lub błędzie (zmienione na czytelniejsze dla odczytu)
-if (isset($_SESSION['profile_success'])): ?>
+if ($success_message && $success_message !== '') : ?>
     <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-        <?= e($_SESSION['profile_success']); ?>
+        <?= e($success_message); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-<?php unset($_SESSION['profile_success']);
-endif; ?>
+<?php endif; ?>
 
-<?php if (isset($_SESSION['profile_error'])): ?>
+<?php if ($error_message && $error_message !== ''): ?>
     <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-        <?= e($_SESSION['profile_error']); ?>
+        <?= e($error_message) ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-<?php unset($_SESSION['profile_error']);
-endif; ?>
+<?php endif; ?>
 
 <div class="container py-5">
     <div class="row">
