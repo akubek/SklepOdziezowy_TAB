@@ -29,6 +29,14 @@ class UserManager
         return $stmt->fetchColumn();
     }
 
+    public function getUserAddresses($userId)
+    {
+        $stmt = $this->pdo->prepare("SELECT addresses FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $addressesJson = $stmt->fetchColumn();
+
+        return $addressesJson ? json_decode($addressesJson, true) : [];
+    }
     public function createUser($firstName, $lastName, $email, $passwordHash, $role = 'CLIENT')
     {
         $stmt = $this->pdo->prepare("
@@ -135,6 +143,15 @@ class UserManager
             ':birth_date'   => $birthDate ?: null,
             ':gender'       => $gender ?: null,
             ':id'           => $userId
+        ]);
+    }
+
+    public function updateAddresses($userId, $addressesJson)
+    {
+        $stmt = $this->pdo->prepare("UPDATE users SET addresses = :addresses WHERE id = :id");
+        return $stmt->execute([
+            ':addresses' => $addressesJson,
+            ':id'        => $userId
         ]);
     }
 }

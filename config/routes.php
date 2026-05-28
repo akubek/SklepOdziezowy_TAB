@@ -21,6 +21,8 @@ return [
     'profile_reviews'           => fn($c) => $c['profileController']($c)->reviews(),
     'profile_review_delete'     => fn($c) => $c['profileController']($c)->deleteReview(),
     'profile_addresses'         => fn($c) => $c['profileController']($c)->addresses(),
+    'profile_address_add'       => fn($c) => $c['profileController']($c)->addAddress(),
+    'profile_address_delete'    => fn($c) => $c['profileController']($c)->deleteAddress(),
     'profile_settings'          => fn($c) => $c['profileController']($c)->settings(),
     'profile_update'            => fn($c) => $c['profileController']($c)->update(),
     'password_change'           => fn($c) => $c['profileController']($c)->changePassword(),

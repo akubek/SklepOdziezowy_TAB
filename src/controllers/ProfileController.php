@@ -142,12 +142,21 @@ class ProfileController
     public function addresses()
     {
         $this->requireLogin();
-        $user = $this->userManager->getUserById($_SESSION['user_id']);
-        $addresses = json_decode($user['addresses'] ?? '[]', true);
+        $userId = $_SESSION['user_id'];
+        $user = $this->userManager->getUserById($userId);
+
+        $addresses = $this->userManager->getUserAddresses($userId);
+
+        $success = $_SESSION['profile_success'] ?? '';
+        $error = $_SESSION['profile_error'] ?? '';
+        unset($_SESSION['profile_success'], $_SESSION['profile_error']);
 
         renderView('profile/addresses', [
             'active_tab' => 'addresses',
-            'addresses' => $addresses
+            'user' => $user,
+            'addresses' => $addresses,
+            'success_message' => $success,
+            'error_message' => $error
         ]);
     }
 
@@ -295,6 +304,118 @@ class ProfileController
         }
 
         header('Location: index.php?page=profile_settings');
+        exit;
+    }
+
+    public function addAddress()
+    {
+        $this->requireLogin();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $userId = $_SESSION['user_id'];
+
+            // Zbieranie i czyszczenie danych
+            $title = trim($_POST['title'] ?? '');
+            $firstName = trim($_POST['first_name'] ?? '');
+            $lastName = trim($_POST['last_name'] ?? '');
+            $street = trim($_POST['street'] ?? '');
+            $zipCode = trim($_POST['zip_code'] ?? '');
+            $city = trim($_POST['city'] ?? '');
+            $phone = trim($_POST['phone'] ?? '');
+
+            // --- BACKEND WALIDACJA ---
+            if (empty($title) || empty($firstName) || empty($lastName) || empty($street) || empty($zipCode) || empty($city) || empty($phone)) {
+                $_SESSION['profile_error'] = "Wszystkie pola adresu są wymagane.";
+                header('Location: index.php?page=profile_addresses');
+                exit;
+            }
+
+            // Walidacja kodu pocztowego (polski format XX-XXX)
+            if (!preg_match('/^[0-9]{2}-[0-9]{3}$/', $zipCode)) {
+                $_SESSION['profile_error'] = "Niepoprawny format kodu pocztowego (wymagany: 00-000).";
+                header('Location: index.php?page=profile_addresses');
+                exit;
+            }
+
+            // Walidacja telefonu
+            if (!preg_match('/^\+?[0-9\s\-]{9,15}$/', $phone)) {
+                $_SESSION['profile_error'] = "Niepoprawny format numeru telefonu.";
+                header('Location: index.php?page=profile_addresses');
+                exit;
+            }
+
+            // --- ZAPIS DO BAZY ---
+            // 1. Pobieramy obecne adresy użytkownika
+            $user = $this->userManager->getUserById($userId);
+            $currentAddresses = $this->userManager->getUserAddresses($userId);
+
+            // 2. Tworzymy nowy adres (dodajemy uniqid, żeby móc go potem łatwo usunąć/edytować)
+            $newAddress = [
+                'id' => uniqid('addr_'),
+                'title' => $title,
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'street' => $street,
+                'zip_code' => $zipCode,
+                'city' => $city,
+                'phone' => $phone
+            ];
+
+            // 3. Dodajemy na koniec tablicy
+            $currentAddresses[] = $newAddress;
+
+            // 4. Konwertujemy z powrotem na JSON
+            $newJson = json_encode($currentAddresses, JSON_UNESCAPED_UNICODE);
+
+            if ($this->userManager->updateAddresses($userId, $newJson)) {
+                $_SESSION['profile_success'] = "Nowy adres został dodany do Twojej książki.";
+            } else {
+                $_SESSION['profile_error'] = "Wystąpił błąd podczas zapisywania adresu.";
+            }
+        }
+
+        header('Location: index.php?page=profile_addresses');
+        exit;
+    }
+
+    public function deleteAddress()
+    {
+        $this->requireLogin();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $addressIdToDelete = trim($_POST['address_id'] ?? '');
+            $userId = $_SESSION['user_id'];
+
+            if (!empty($addressIdToDelete)) {
+                // 1. Pobieramy obecne adresy
+                $currentAddresses = $this->userManager->getUserAddresses($userId);
+
+                // 2. Filtrujemy tablicę - zostawiamy tylko te adresy, których ID nie pasuje do usuwanego
+                $updatedAddresses = array_filter($currentAddresses, function ($address) use ($addressIdToDelete) {
+                    // Zwraca true (zostawia adres), jeśli ID jest inne niż to do usunięcia
+                    return isset($address['id']) && $address['id'] !== $addressIdToDelete;
+                });
+
+                // 3. BARDZO WAŻNE: Przeindeksowanie tablicy!
+                // array_filter usuwa element, ale zostawia "dziury" w kluczach (np. 0, 2, 3).
+                // Przez to json_encode zrobiłby z tego obiekt {"0":{}, "2":{}}, a nie tablicę [{}, {}].
+                // array_values naprawia klucze, żeby znów leciały po kolei (0, 1, 2).
+                $updatedAddresses = array_values($updatedAddresses);
+
+                // 4. Zamieniamy z powrotem na JSON i zapisujemy
+                $newJson = json_encode($updatedAddresses, JSON_UNESCAPED_UNICODE);
+
+                if ($this->userManager->updateAddresses($userId, $newJson)) {
+                    $_SESSION['profile_success'] = "Adres został usunięty z Twojej książki adresowej.";
+                } else {
+                    $_SESSION['profile_error'] = "Wystąpił błąd podczas usuwania adresu.";
+                }
+            } else {
+                $_SESSION['profile_error'] = "Nie przekazano identyfikatora adresu.";
+            }
+        }
+
+        header('Location: index.php?page=profile_addresses');
         exit;
     }
 }
