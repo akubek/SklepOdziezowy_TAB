@@ -7,10 +7,17 @@
     <?php foreach ($subcategories as $sub): ?>
         <div class="col">
             <div class="card h-100 shadow-sm border-0 position-relative category-card">
-                <img src="https://placehold.co/600x400/eeeeee/999999?text=<?= urlencode($sub['name']) ?>"
-                    class="card-img-top object-fit-cover"
-                    alt="<?= htmlspecialchars($sub['name']) ?>"
-                    style="height: 200px;">
+                <?php if (!empty($sub['image_path'])): ?>
+                    <img src="<?= htmlspecialchars($sub['image_path']) ?>"
+                        class="card-img-top object-fit-cover"
+                        alt="<?= htmlspecialchars($sub['name']) ?>"
+                        style="height: 200px;">
+                <?php else: ?>
+                    <img src="https://placehold.co/600x400/eeeeee/999999?text=<?= urlencode($sub['name']) ?>"
+                        class="card-img-top object-fit-cover"
+                        alt="<?= htmlspecialchars($sub['name']) ?>"
+                        style="height: 200px;">
+                <?php endif; ?>
 
                 <div class="card-body text-center d-flex flex-column justify-content-center">
                     <h3 class="card-title h5 fw-bold mb-0"><?= htmlspecialchars($sub['name']) ?></h3>

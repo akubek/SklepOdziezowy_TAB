@@ -84,6 +84,15 @@ return [
         return $instance;
     },
 
+    'orderFulfillmentManager' => function ($c) {
+        static $instance;
+        if ($instance === null) {
+            require_once BASE_PATH . '/src/managers/OrderFulfillmentManager.php';
+            $instance = new OrderFulfillmentManager($c['pdo']($c));
+        }
+        return $instance;
+    },
+
     //Controllers
     'authController' => function ($c) {
         static $instance;
@@ -162,6 +171,15 @@ return [
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/ErrorController.php';
             $instance = new ErrorController();
+        }
+        return $instance;
+    },
+
+    'orderFulfillmentController' => function ($c) {
+        static $instance;
+        if ($instance === null) {
+            require_once BASE_PATH . '/src/controllers/OrderFulfillmentController.php';
+            $instance = new OrderFulfillmentController($c['orderFulfillmentManager']($c));
         }
         return $instance;
     }

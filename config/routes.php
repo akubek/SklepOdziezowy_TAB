@@ -39,5 +39,11 @@ return [
     // Obsługa błędów (przez ErrorController)
     '403' => fn($c) => $c['errorController']($c)->forbidden(),
     '404' => fn($c) => $c['errorController']($c)->notFound(),
-    '500' => fn($c) => $c['errorController']($c)->internalError()
+    '500' => fn($c) => $c['errorController']($c)->internalError(),
+
+    // Panel Administracyjny 
+    'admin_orders'        => fn($c) => $c['orderFulfillmentController']($c)->index(),
+    'admin_order_details' => fn($c) => $c['orderFulfillmentController']($c)->show(),
+    'admin_order_update'  => fn($c) => $c['orderFulfillmentController']($c)->updateStatus()
+
 ];

@@ -21,7 +21,17 @@
         <?php foreach ($mainCategories as $category): ?>
             <div class="col">
                 <div class="card h-100 shadow-sm border-0 position-relative category-card">
-                    <img src="https://placehold.co/600x400/eeeeee/999999?text=<?= urlencode($category['name']) ?>" class="card-img-top object-fit-cover" alt="<?= htmlspecialchars($category['name']) ?>" style="height: 250px;">
+                    <?php if (!empty($category['image_path'])): ?>
+                        <img src="<?= htmlspecialchars($category['image_path']) ?>" 
+                             class="card-img-top object-fit-cover" 
+                             alt="<?= htmlspecialchars($category['name']) ?>" 
+                             style="height: 250px;">
+                    <?php else: ?>
+                        <img src="https://placehold.co/600x400/eeeeee/999999?text=<?= urlencode($category['name']) ?>" 
+                             class="card-img-top object-fit-cover" 
+                             alt="<?= htmlspecialchars($category['name']) ?>" 
+                             style="height: 250px;">
+                    <?php endif; ?>
                     <div class="card-body text-center d-flex flex-column justify-content-center">
                         <h3 class="card-title fw-bold mb-0"><?= htmlspecialchars($category['name']) ?></h3>
                         <a href="index.php?page=category&id=<?= $category['id'] ?>" class="stretched-link"></a>

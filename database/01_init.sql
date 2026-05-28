@@ -41,7 +41,8 @@ CREATE TABLE users (
 CREATE TABLE categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    parent_id INT REFERENCES categories(id) ON DELETE SET NULL
+    parent_id INT REFERENCES categories(id) ON DELETE SET NULL,
+    image_path TEXT
 );
 
 CREATE TABLE promotions (

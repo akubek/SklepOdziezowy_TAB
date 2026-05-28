@@ -5,7 +5,9 @@ class AuthController
         'checkout_form',
         'cart',
         'profile',
-        'home'
+        'home',
+        'admin_orders',
+        'admin_order_details'
     ];
 
     private $authManager;
