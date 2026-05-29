@@ -76,3 +76,28 @@ GROUP BY
     c.name,
     p.brand_name,
     p.name;
+
+-- widok pomocniczy do popularnosci produktow
+CREATE OR REPLACE VIEW v_popular_products AS
+SELECT 
+    DATE(o.created_at) AS sale_date, -- NOWOŚĆ: Dodana data
+    p.id AS product_id,
+    p.name AS product_name,
+    p.brand_name,
+    c.name AS category_name,
+    SUM(oi.quantity) AS total_sold,
+    SUM(oi.quantity * oi.unit_price) AS total_revenue
+FROM products p
+JOIN product_variants pv ON p.id = pv.product_id
+JOIN order_items oi ON pv.id = oi.variant_id
+JOIN orders o ON oi.order_id = o.id
+JOIN categories c ON p.category_id = c.id
+WHERE 
+    o.status != 'CANCELLED' 
+    AND o.payment_status = 'PAID'
+GROUP BY 
+    DATE(o.created_at), -- NOWOŚĆ: Grupowanie po dacie
+    p.id, 
+    p.name, 
+    p.brand_name, 
+    c.name;
