@@ -41,6 +41,19 @@ $mainCategories = $categoryManager->getSubCategories(1);
 
                         <?php if (isset($_SESSION['user_id'])): ?>
                             <a href="index.php?page=profile" class="btn btn-outline-light text-nowrap">Moje konto</a>
+                            
+                            <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['EMPLOYEE', 'MANAGER'])): ?>
+                                <a href="index.php?page=admin_orders" class="btn btn-outline-warning text-nowrap">
+                                    <i class="bi bi-box-seam"></i> Zamówienia
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER'): ?>
+                                <a href="index.php?page=admin_inventory" class="btn btn-outline-danger text-nowrap">
+                                    <i class="bi bi-boxes"></i> Magazyn
+                                </a>
+                            <?php endif; ?>
+
                             <a href="index.php?page=logout" class="btn btn-danger text-nowrap">Wyloguj</a>
                         <?php else: ?>
                             <a href="index.php?page=login" class="btn btn-primary text-nowrap">Zaloguj</a>

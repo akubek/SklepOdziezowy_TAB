@@ -133,8 +133,10 @@ class AuthController
 
                     // Jeśli brak planowanego przekierowania, decydujemy na podstawie roli
                     if (!$targetPage) {
-                        if (in_array($user['role'], ['EMPLOYEE', 'MANAGER'])) {
-                            $targetPage = 'admin_orders';
+                        if ($user['role'] === 'MANAGER') {
+                            $targetPage = 'admin_inventory'; // Menedżer zarządza sklepem
+                        } elseif ($user['role'] === 'EMPLOYEE') {
+                            $targetPage = 'admin_orders'; // Pracownik pakuje zamówienia
                         } else {
                             $targetPage = 'home'; // Zwykły klient wraca na stronę główną
                         }

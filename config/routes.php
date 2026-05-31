@@ -29,11 +29,33 @@ return [
     // Obsługa błędów (przez ErrorController)
     '403' => fn($c) => $c['errorController']($c)->forbidden(),
     '404' => fn($c) => $c['errorController']($c)->notFound(),
+    '409' => fn($c) => $c['errorController']($c)->conflict(),
     '500' => fn($c) => $c['errorController']($c)->internalError(),
 
     // Panel Administracyjny 
     'admin_orders'        => fn($c) => $c['orderFulfillmentController']($c)->index(),
     'admin_order_details' => fn($c) => $c['orderFulfillmentController']($c)->show(),
-    'admin_order_update'  => fn($c) => $c['orderFulfillmentController']($c)->updateStatus()
+    'admin_order_update'  => fn($c) => $c['orderFulfillmentController']($c)->updateStatus(),
 
+    // --- Panel Managera ---
+    'admin_inventory' => fn($c) => $c['inventoryController']($c)->index(),
+    
+    // CRUD Kategorii
+    'admin_category_add'    => fn($c) => $c['inventoryController']($c)->showCategoryForm(),
+    'admin_category_edit'   => fn($c) => $c['inventoryController']($c)->showCategoryForm(),
+    'admin_category_save'   => fn($c) => $c['inventoryController']($c)->saveCategory(),
+    'admin_category_delete' => fn($c) => $c['inventoryController']($c)->deleteCategory(),
+
+    // CRUD Produktów
+    'admin_product_add'    => fn($c) => $c['inventoryController']($c)->showProductForm(),
+    'admin_product_edit'   => fn($c) => $c['inventoryController']($c)->showProductForm(),
+    'admin_product_save'   => fn($c) => $c['inventoryController']($c)->saveProduct(),
+    'admin_product_delete' => fn($c) => $c['inventoryController']($c)->deleteProduct(),
+
+    // CRUD Wariantów
+    'admin_variants'       => fn($c) => $c['inventoryController']($c)->showVariantsList(),
+    'admin_variant_add'    => fn($c) => $c['inventoryController']($c)->showVariantForm(),
+    'admin_variant_edit'   => fn($c) => $c['inventoryController']($c)->showVariantForm(),
+    'admin_variant_save'   => fn($c) => $c['inventoryController']($c)->saveVariant(),
+    'admin_variant_delete' => fn($c) => $c['inventoryController']($c)->deleteVariant()
 ];
