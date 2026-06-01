@@ -74,11 +74,12 @@ class ProductController
             return;
         }
 
-        $products = $this->productManager->searchProducts($q);
+        $products = $this->productManager->searchProducts($q, $s);
 
         renderView('search_results', [
             'products' => $products,
             'searchQuery' => $q,
+            'sort' => $s,
             'title' => 'Wyniki dla: ' . e($q)
         ]);
     }
