@@ -109,7 +109,7 @@ class ProductManager
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function searchProducts(string $phrase): array
+    public function searchProducts(string $phrase, string $orderBy = 'newest'): array
     {
         $cleanPhrase = preg_replace('/[^\p{L}\p{N}_]+/u', ' ', $phrase);
 
@@ -123,13 +123,23 @@ class ProductManager
 
         $searchTerm = implode(' & ', $tsQueryParts);
 
+        // Bezpieczne mapowanie sortowania
+        $orderings = [
+            'newest'     => 'p.created_at DESC',
+            'price_asc'  => 'p.base_price ASC',
+            'price_desc' => 'p.base_price DESC',
+            'name_asc'   => 'p.name ASC'
+        ];
+
+        $sqlOrder = $orderings[$orderBy] ?? $orderings['newest'];
+
         $sql = "SELECT p.*, c.name as category_name, parent.name as parent_category_name 
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN categories parent ON c.parent_id = parent.id
                 WHERE to_tsvector('simple', COALESCE(p.name, '') || ' ' || COALESCE(p.description, '')) 
                         @@ to_tsquery('simple', :phrase)
-                ORDER BY p.created_at DESC";
+                ORDER BY $sqlOrder";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(['phrase' => $searchTerm]);
