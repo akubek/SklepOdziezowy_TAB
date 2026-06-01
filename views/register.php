@@ -20,13 +20,13 @@
                     <form id="register-form" action="index.php?page=register" method="POST" novalidate>
                         <div class="mb-3">
                             <label for="first_name" class="form-label">Imię</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" required>
-                            <div class="invalid-feedback">Proszę podać imię.</div>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required maxlength="32">
+                            <div class="invalid-feedback">Proszę podać imię (max 32 znaki).</div>
                         </div>
                         <div class="mb-3">
                             <label for="last_name" class="form-label">Nazwisko</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" required>
-                            <div class="invalid-feedback">Proszę podać nazwisko.</div>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required maxlength="32">
+                            <div class="invalid-feedback">Proszę podać nazwisko (max 32 znaki).</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Adres e-mail</label>

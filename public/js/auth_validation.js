@@ -68,8 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     isValid = checkEmail(input);
                 } else if (input.id === 'password') {
                     isValid = input.value.length >= 8;
+                } else if (input.id === 'first_name' || input.id === 'last_name') {
+                    isValid = input.value.trim().length > 0 && input.value.trim().length <= 32;
                 } else {
-                    isValid = input.value.trim().length > 0; // Imię i nazwisko
+                    isValid = input.value.trim().length > 0;
                 }
 
                 toggleClasses(input, isValid);
