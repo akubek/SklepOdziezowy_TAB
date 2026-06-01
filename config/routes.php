@@ -14,8 +14,18 @@ return [
     'login'             => fn($c) => $c['authController']($c)->showLogin(),
     'logout'            => fn($c) => $c['authController']($c)->logout(),
     'register'          => fn($c) => $c['authController']($c)->showRegister(),
-    'profile'           => fn($c) => $c['authController']($c)->showProfile(),
-    'change-password'   => fn($c) => $c['authController']($c)->changePassword(),
+
+    'profile'                   => fn($c) => $c['profileController']($c)->index(),
+    'profile_orders'            => fn($c) => $c['profileController']($c)->orders(),
+    'profile_order_details'     => fn($c) => $c['profileController']($c)->orderDetails(),
+    'profile_reviews'           => fn($c) => $c['profileController']($c)->reviews(),
+    'profile_review_delete'     => fn($c) => $c['profileController']($c)->deleteReview(),
+    'profile_addresses'         => fn($c) => $c['profileController']($c)->addresses(),
+    'profile_address_add'       => fn($c) => $c['profileController']($c)->addAddress(),
+    'profile_address_delete'    => fn($c) => $c['profileController']($c)->deleteAddress(),
+    'profile_settings'          => fn($c) => $c['profileController']($c)->settings(),
+    'profile_update'            => fn($c) => $c['profileController']($c)->update(),
+    'password_change'           => fn($c) => $c['profileController']($c)->changePassword(),
 
     // Recenzje
     'add_review'        => fn($c) => $c['reviewController']($c)->add(),

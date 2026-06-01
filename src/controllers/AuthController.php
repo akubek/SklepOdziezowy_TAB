@@ -10,11 +10,13 @@ class AuthController
         'admin_order_details'
     ];
 
-    private $pdo;
+    private $authManager;
+    private $userManager;
 
-    public function __construct($pdo)
+    public function __construct($authManager, $userManager)
     {
-        $this->pdo = $pdo;
+        $this->authManager = $authManager;
+        $this->userManager = $userManager;
     }
 
     public function showRegister()
@@ -40,9 +42,7 @@ class AuthController
                 $error_message = "Imię i nazwisko są wymagane.";
             } else {
                 try {
-                    $stmt = $this->pdo->prepare("SELECT id, role FROM users WHERE email = :email");
-                    $stmt->execute(['email' => $email]);
-                    $existingUser = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $existingUser = $this->userManager->getUserByEmail($email);
 
                     if ($existingUser && $existingUser['role'] !== 'GUEST') {
                         $error_message = "Konto z tym adresem e-mail już istnieje!";
@@ -50,32 +50,20 @@ class AuthController
                         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                         if ($existingUser && $existingUser['role'] === 'GUEST') {
                             // SCENARIUSZ 1: Użytkownik kupował jako gość -> Zmieniamy go w pełne konto
-                            $saveStmt = $this->pdo->prepare("
-                                UPDATE users 
-                                SET first_name = :first_name, 
-                                    last_name = :last_name, 
-                                    password_hash = :password_hash, 
-                                    role = 'CLIENT' 
-                                WHERE id = :id
-                            ");
-                            $saveStmt->execute([
-                                'first_name'    => $firstName,
-                                'last_name'     => $lastName,
-                                'password_hash' => $hashedPassword,
-                                'id'            => $existingUser['id']
-                            ]);
+                            $this->userManager->upgradeGuestToClient(
+                                $existingUser['id'],
+                                $firstName,
+                                $lastName,
+                                $hashedPassword
+                            );
                         } else {
                             // SCENARIUSZ 2: Użytkownik jest całkowicie nowy -> Tworzymy konto
-                            $saveStmt = $this->pdo->prepare("
-                                INSERT INTO users (first_name, last_name, email, password_hash, role) 
-                                VALUES (:first_name, :last_name, :email, :password_hash, 'CLIENT')
-                            ");
-                            $saveStmt->execute([
-                                'first_name'    => $firstName,
-                                'last_name'     => $lastName,
-                                'email'         => $email,
-                                'password_hash' => $hashedPassword
-                            ]);
+                            $this->userManager->createUser(
+                                $firstName,
+                                $lastName,
+                                $email,
+                                $hashedPassword
+                            );
                         }
                         $_SESSION['flash_success'] = "Konto zostało pomyślnie utworzone! Możesz się teraz zalogować.";
                         header("Location: index.php?page=login");
@@ -114,34 +102,11 @@ class AuthController
 
             // additional email format check
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                // find user by email
-                $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
-                $stmt->execute(['email' => $email]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
                 // user is registered in database and passwords match
-                if ($user && password_verify($password, $user['password_hash'])) {
-
-                    // create session for user
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['role'] = $user['role'];
-                    $_SESSION['first_name'] = $user['first_name'];
-
-                    // Wyciągamy planowane przekierowanie (jeśli było)
-                    $targetPage = $_SESSION['intended_redirect'] ?? null;
-                    unset($_SESSION['intended_redirect']); // bardzo ważne czyszczenie!
-
-                    // Jeśli brak planowanego przekierowania, decydujemy na podstawie roli
-                    if (!$targetPage) {
-                        if ($user['role'] === 'MANAGER') {
-                            $targetPage = 'admin_inventory'; // Menedżer zarządza sklepem
-                        } elseif ($user['role'] === 'EMPLOYEE') {
-                            $targetPage = 'admin_orders'; // Pracownik pakuje zamówienia
-                        } else {
-                            $targetPage = 'home'; // Zwykły klient wraca na stronę główną
-                        }
-                    }
-
+                if ($this->authManager->login($email, $password)) {
+                    // redirect back to intended page or main page
+                    $targetPage = $_SESSION['intended_redirect'] ?? 'home';
+                    unset($_SESSION['intended_redirect']);
                     header("Location: index.php?page=" . $targetPage);
                     exit;
                 } else {
@@ -168,113 +133,6 @@ class AuthController
 
         // Przekierowujemy na stronę główną
         header("Location: index.php?page=home");
-        exit;
-    }
-
-    public function showProfile()
-    {
-        // Sprawdzenie autoryzacji
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: index.php?page=403');
-            exit;
-        }
-
-        // Pobieranie danych użytkownika
-        $stmt = $this->pdo->prepare("SELECT first_name, last_name, email, created_at FROM users WHERE id = :id");
-        $stmt->execute(['id' => $_SESSION['user_id']]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        $success_message = '';
-        $error_message = '';
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $firstName = trim($_POST['first_name'] ?? '');
-            $lastName = trim($_POST['last_name'] ?? '');
-            $email = trim($_POST['email'] ?? '');
-
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $error_message = "Podaj poprawny adres e-mail.";
-            } else {
-                $updateStmt = $this->pdo->prepare("
-                    UPDATE users 
-                    SET first_name = :first_name, last_name = :last_name, email = :email 
-                    WHERE id = :id
-                ");
-
-                if ($updateStmt->execute([
-                    'first_name' => $firstName,
-                    'last_name' => $lastName,
-                    'email' => $email,
-                    'id' => $_SESSION['user_id']
-                ])) {
-                    $_SESSION['first_name'] = $firstName;
-                    $success_message = "Dane zostały zaktualizowane!";
-                    $user['first_name'] = $firstName;
-                    $user['last_name'] = $lastName;
-                    $user['email'] = $email;
-                } else {
-                    $error_message = "Wystąpił błąd podczas aktualizacji.";
-                }
-            }
-        }
-        renderView('profile', [
-            'user'              => $user,
-            'success_message'   => $success_message,
-            'error_message'     => $error_message
-        ]);
-    }
-
-    public function changePassword()
-    {
-        // Sprawdzenie autoryzacji
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: index.php?page=login');
-            exit;
-        }
-
-        $error_message = '';
-        $success_message = '';
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $currentPassword = $_POST['current_password'] ?? '';
-            $newPassword = $_POST['new_password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
-
-            // Pobieranie obecnego hasło
-            $stmt = $this->pdo->prepare("SELECT password_hash FROM users WHERE id = :id");
-            $stmt->execute(['id' => $_SESSION['user_id']]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            // Walidacja
-            if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-                $error_message = "Wszystkie pola są wymagane.";
-            } elseif (!password_verify($currentPassword, $user['password_hash'])) {
-                $error_message = "Obecne hasło jest nieprawidłowe.";
-            } elseif ($newPassword !== $confirmPassword) {
-                $error_message = "Nowe hasła nie są identyczne.";
-            } elseif (strlen($newPassword) < 6) {
-                $error_message = "Nowe hasło musi mieć co najmniej 6 znaków.";
-            } else {
-                // Aktualizacja hasła
-                $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
-                $updateStmt = $this->pdo->prepare("UPDATE users SET password_hash = :hash WHERE id = :id");
-
-                if ($updateStmt->execute(['hash' => $newHash, 'id' => $_SESSION['user_id']])) {
-                    $success_message = "Hasło zostało pomyślnie zmienione!";
-                } else {
-                    $error_message = "Wystąpił błąd podczas zmiany hasła.";
-                }
-            }
-        }
-
-        if (!empty($success_message)) {
-            $_SESSION['profile_success'] = $success_message;
-        }
-        if (!empty($error_message)) {
-            $_SESSION['profile_error'] = $error_message;
-        }
-
-        header('Location: index.php?page=profile');
         exit;
     }
 }

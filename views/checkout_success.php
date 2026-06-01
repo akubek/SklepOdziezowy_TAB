@@ -85,7 +85,7 @@ $paymentName  = $paymentLabels[$order['payment_method']] ?? strtoupper($order['p
                     // Przekazujemy items z zamówienia i ustawiamy flagę
                     $items = $order['items'];
                     $isSuccessPage = true;
-                    include BASE_PATH . '/views/partials/checkout/order_items_list.php';
+                    include BASE_PATH . '/views/partials/order_items_list.php';
                     ?>
 
                     <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">

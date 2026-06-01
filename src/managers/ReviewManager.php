@@ -36,6 +36,20 @@ class ReviewManager
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getReviewsForUser($userId)
+    {
+        // Używamy JOIN, żeby wyciągnąć nazwę produktu powiązanego z tą opinią
+        $stmt = $this->pdo->prepare("
+            SELECT r.*, p.name AS product_name 
+            FROM reviews r
+            JOIN products p ON r.product_id = p.id
+            WHERE r.user_id = ?
+            ORDER BY r.created_at DESC
+        ");
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Sprawdza, czy użytkownik kupił ten produkt
     private function checkIfVerifiedPurchase($userId, $productId)
     {

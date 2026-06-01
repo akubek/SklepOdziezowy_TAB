@@ -31,6 +31,10 @@
         <script src="js/cart.js"></script>
     <?php endif; ?>
 
+    <?php if (isset($viewName) && strpos($viewName, 'profile') === 0): ?>
+        <script src="js/profile.js"></script>
+    <?php endif; ?>
+
 </body>
 
 </html>
