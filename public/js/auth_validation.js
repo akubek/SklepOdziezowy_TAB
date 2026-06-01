@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.getElementById('register-form');
 
     // neither login form nor register form
-    if (!loginForm && !registerForm) { 
-        return; 
+    if (!loginForm && !registerForm) {
+        return;
     }
 
     //shared helper functions
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const validateLogin = () => {
             const isEmailValid = checkEmail(emailInput);
             const isPasswordValid = passwordInput.value.trim().length > 0;
-    
+
             toggleClasses(emailInput, isEmailValid);
             toggleClasses(passwordInput, isPasswordValid);
 
@@ -51,9 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
         passwordInput.addEventListener('input', validateLogin);
         passwordInput.addEventListener('change', validateLogin);
         passwordInput.addEventListener('blur', validateLogin);
-        
+
     }
-    
+
     //register form check
     if (registerForm) {
         const submitBtn = registerForm.querySelector('button[type="submit"]');
@@ -67,13 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (input.id === 'email') {
                     isValid = checkEmail(input);
                 } else if (input.id === 'password') {
-                    isValid = input.value.length >= 8;
+                    isValid = input.value.length >= 8 && input.value.length <= 64;
                 } else {
                     isValid = input.value.trim().length > 0; // Imię i nazwisko
                 }
 
                 toggleClasses(input, isValid);
-                
+
                 if (!isValid) isFormValid = false;
             });
 

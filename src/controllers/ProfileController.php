@@ -281,8 +281,8 @@ class ProfileController
             }
 
             // min 8 znakow
-            if (strlen($newPassword) < 8) {
-                $_SESSION['profile_error'] = "Nowe hasło musi mieć co najmniej 8 znaków.";
+            if (strlen($newPassword) < 8 || strlen($newPassword) > 64) {
+                $_SESSION['profile_error'] = "Nowe hasło musi mieć co najmniej 8 znaków i nie więcej niż 64.";
                 header('Location: index.php?page=profile_settings');
                 exit;
             }

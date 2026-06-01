@@ -36,7 +36,7 @@
                         <div class="mb-3">
                             <label for="password" class="form-label">Hasło</label>
                             <input type="password" class="form-control" id="password" name="password" required>
-                            <div class="invalid-feedback">Hasło musi składać się z co najmniej 8 znaków.</div>
+                            <div class="invalid-feedback">Hasło musi składać się z 8 do 64 znaków.</div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 btn-lg mt-3" id="register-btn" disabled>Zarejestruj się</button>
                     </form>
