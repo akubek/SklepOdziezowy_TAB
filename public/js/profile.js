@@ -40,5 +40,53 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
+    const currentPasswordInput = document.querySelector('input[name="current_password"]');
+    const newPasswordInput = document.querySelector('input[name="new_password"]');
+    const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
+
+    if (newPasswordInput && confirmPasswordInput && currentPasswordInput) {
+        const passwordForm = newPasswordInput.closest('form');
+        const submitPasswordBtn = passwordForm.querySelector('button[type="submit"]');
+
+        // Domyślnie blokujemy przycisk
+        submitPasswordBtn.disabled = true;
+
+        const validatePasswordChange = () => {
+            const currentLen = currentPasswordInput.value.length;
+            const newLen = newPasswordInput.value.length;
+
+            // 1. Stare hasło po prostu musi być wpisane (nie puste)
+            const isCurrentValid = currentLen > 0;
+
+            // 2. Nowe hasło musi mieć od 8 do 72 znaków
+            const isNewValid = newLen >= 8 && newLen <= 64;
+
+            // 3. Powtórzenie musi być takie samo jak nowe
+            const isConfirmValid = confirmPasswordInput.value === newPasswordInput.value && newLen > 0;
+
+            // Logika podświetlania na zielono/czerwono (klasy z Bootstrapa)
+            if (newLen > 0) {
+                newPasswordInput.classList.toggle('is-valid', isNewValid);
+                newPasswordInput.classList.toggle('is-invalid', !isNewValid);
+            } else {
+                newPasswordInput.classList.remove('is-valid', 'is-invalid');
+            }
+
+            if (confirmPasswordInput.value.length > 0) {
+                confirmPasswordInput.classList.toggle('is-valid', isConfirmValid);
+                confirmPasswordInput.classList.toggle('is-invalid', !isConfirmValid);
+            } else {
+                confirmPasswordInput.classList.remove('is-valid', 'is-invalid');
+            }
+
+            // Przycisk aktywny tylko gdy wszystko jest OK
+            submitPasswordBtn.disabled = !(isCurrentValid && isNewValid && isConfirmValid);
+        };
+
+        // Podpinamy nasłuchiwanie na każde wpisanie znaku
+        currentPasswordInput.addEventListener('input', validatePasswordChange);
+        newPasswordInput.addEventListener('input', validatePasswordChange);
+        confirmPasswordInput.addEventListener('input', validatePasswordChange);
+    }
 });
 

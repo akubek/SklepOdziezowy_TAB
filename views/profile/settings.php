@@ -51,11 +51,11 @@ if ($success_message && $success_message !== '') : ?>
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label text-muted small mb-1">Imię <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control profile-input" name="first_name" value="<?= e($user['first_name']) ?>" required disabled>
+                                <input type="text" class="form-control profile-input" name="first_name" value="<?= e($user['first_name']) ?>" maxlength="50" required disabled>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small mb-1">Nazwisko <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control profile-input" name="last_name" value="<?= e($user['last_name']) ?>" required disabled>
+                                <input type="text" class="form-control profile-input" name="last_name" value="<?= e($user['last_name']) ?>" maxlength="50" required disabled>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small mb-1">Adres e-mail <span class="text-danger">*</span></label>

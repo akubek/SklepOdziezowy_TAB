@@ -34,7 +34,11 @@ class AuthController
             $email = strtolower(trim($_POST['email'] ?? ''));
             $password = $_POST['password'] ?? '';
 
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (mb_strlen($firstName) > 50 || mb_strlen($lastName) > 50) {
+                $error_message = "Imię i nazwisko mogą mieć maksymalnie 50 znaków.";
+            } elseif (mb_strlen($email) > 255) {
+                $error_message = "Adres e-mail jest zbyt długi (maksymalnie 255 znaków).";
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $error_message = "Niepoprawny format adresu e-mail.";
             } elseif (strlen($password) < 8) {
                 $error_message = "Hasło musi mieć co najmniej 8 znaków.";
