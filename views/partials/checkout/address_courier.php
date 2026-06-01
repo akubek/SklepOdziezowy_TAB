@@ -9,7 +9,7 @@
 
     <div class="col-md-4">
         <label for="zip_code" class="form-label">Kod pocztowy <span class="text-danger">*</span></label>
-        <input type="text" class="form-control" id="zip_code" name="shipping[zip_code]" placeholder="np. 00-000" pattern="^[0-9]{2}-[0-9]{3}$" required>
+        <input type="text" class="form-control" id="zip_code" name="shipping[zip_code]" placeholder="np. 00-000" pattern="^[0-9]{2}-[0-9]{3}$" maxlength="6" required>
         <div class="invalid-feedback">Podaj kod pocztowy w odpowiednim formacie XX-XXX.</div>
     </div>
 

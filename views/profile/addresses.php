@@ -98,7 +98,7 @@
                     <div class="row g-2 mb-3">
                         <div class="col-4">
                             <label class="form-label small text-muted">Kod pocztowy <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="zip_code" required pattern="^[0-9]{2}-[0-9]{3}$" placeholder="00-000">
+                            <input type="text" class="form-control" name="zip_code" required pattern="^[0-9]{2}-[0-9]{3}$" placeholder="00-000" maxlength="6">
                         </div>
                         <div class="col-8">
                             <label class="form-label small text-muted">Miasto <span class="text-danger">*</span></label>
@@ -107,7 +107,7 @@
                     </div>
                     <div class="mb-4">
                         <label class="form-label small text-muted">Numer telefonu dla kuriera <span class="text-danger">*</span></label>
-                        <input type="tel" class="form-control" name="phone" value="<?= e($user['phone_number'] ?? '') ?>" required pattern="^\+?[0-9\s\-]{9,15}$">
+                        <input type="tel" class="form-control" name="phone" value="<?= e($user['phone_number'] ?? '') ?>" required pattern="^\+?[0-9\s\-]{9,15}$" maxlength="20">
                     </div>
                     <button type="submit" class="btn btn-primary w-100 fw-bold">Zapisz adres</button>
                 </form>

@@ -98,6 +98,16 @@ class CheckoutController
             }
             $shippingData['phone'] = $phone; // Zapisujemy z powrotem czysty numer do tablicy
 
+            // Sprawdzenie długości email
+            if (mb_strlen($finalEmail) > 255) {
+                $this->redirectWithError("Adres e-mail jest zbyt długi (maksymalnie 255 znaków).");
+            }
+
+            // Sprawdzenie długości imienia i nazwiska
+            if (mb_strlen($shippingData['first_name']) > 50 || mb_strlen($shippingData['last_name']) > 50) {
+                $this->redirectWithError("Imię i nazwisko mogą mieć maksymalnie 50 znaków.");
+            }
+
             if (empty($shippingData['first_name']) || empty($shippingData['last_name'])) {
                 $this->redirectWithError("Imię i nazwisko są wymagane!");
             }
@@ -110,12 +120,26 @@ class CheckoutController
                 if (empty($shippingData['street']) || empty($shippingData['city'])) {
                     $this->redirectWithError("Proszę podać pełny adres (ulica i miasto).");
                 }
+                if (mb_strlen($shippingData['street']) > 100) {
+                    $this->redirectWithError("Adres ulicy może mieć maksymalnie 100 znaków.");
+                }
+
+                if (mb_strlen($shippingData['city']) > 50) {
+                    $this->redirectWithError("Nazwa miasta może mieć maksymalnie 50 znaków.");
+                }
                 if (!preg_match('/^[0-9]{2}-[0-9]{3}$/', $shippingData['zip_code'] ?? '')) {
                     $this->redirectWithError("Niepoprawny format kodu pocztowego (wymagany: XX-XXX).");
                 }
             } elseif ($deliveryMethod === 'paczkomat') {
-                if (empty($shippingData['paczkomat_code'])) {
+                $paczkomatCode = strtoupper(trim($shippingData['paczkomat_code'] ?? ''));
+                $shippingData['paczkomat_code'] = $paczkomatCode;
+
+                if (empty($paczkomat_code)) {
                     $this->redirectWithError("Proszę podać kod Paczkomatu.");
+                }
+
+                if (!preg_match('/^[A-Z]{3}[0-9A-Z]{3,4}$/', $paczkomatCode)) {
+                    $this->redirectWithError("Nieprawidłowy format kodu Paczkomatu (np. WAW01M).");
                 }
             }
 

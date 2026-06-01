@@ -176,6 +176,19 @@ class ProfileController
             $gender = !empty($_POST['gender']) ? $_POST['gender'] : null;
 
             // walidacja
+            // imię i nazwisko - długość
+            if (mb_strlen($firstName) > 50 || mb_strlen($lastName) > 50) {
+                $_SESSION['profile_error'] = "Imię i nazwisko mogą mieć maksymalnie 50 znaków.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
+
+            // długość e-mail
+            if (mb_strlen($email) > 255) {
+                $_SESSION['profile_error'] = "Adres e-mail jest zbyt długi.";
+                header('Location: index.php?page=profile_settings');
+                exit;
+            }
 
             // format e-mail
             if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -330,7 +343,26 @@ class ProfileController
                 exit;
             }
 
-            // Walidacja kodu pocztowego (polski format XX-XXX)
+            // Walidacja długości
+            if (mb_strlen($title) > 50 || mb_strlen($firstName) > 50 || mb_strlen($lastName) > 50) {
+                $_SESSION['profile_error'] = "Nazwa adresu, imię i nazwisko mogą mieć maksymalnie 50 znaków.";
+                header('Location: index.php?page=profile_addresses');
+                exit;
+            }
+
+            if (mb_strlen($street) > 100) {
+                $_SESSION['profile_error'] = "Adres ulicy może mieć maksymalnie 100 znaków.";
+                header('Location: index.php?page=profile_addresses');
+                exit;
+            }
+
+            if (mb_strlen($city) > 50) {
+                $_SESSION['profile_error'] = "Nazwa miasta może mieć maksymalnie 50 znaków.";
+                header('Location: index.php?page=profile_addresses');
+                exit;
+            }
+
+            // Walidacja kodu pocztowego
             if (!preg_match('/^[0-9]{2}-[0-9]{3}$/', $zipCode)) {
                 $_SESSION['profile_error'] = "Niepoprawny format kodu pocztowego (wymagany: 00-000).";
                 header('Location: index.php?page=profile_addresses');

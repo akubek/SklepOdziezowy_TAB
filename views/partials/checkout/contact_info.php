@@ -33,6 +33,6 @@
     <label for="shipping_phone" class="form-label">Numer telefonu <span class="text-danger">*</span></label>
     <input type="tel" class="form-control" id="shipping_phone" name="shipping[phone]"
         value="<?= $currentUser ? e($currentUser['phone_number']) : '' ?>"
-        pattern="^([0-9]{3}[\s\-]?){2}[0-9]{3}$" required>
+        pattern="^([0-9]{3}[\s\-]?){2}[0-9]{3}$" required maxlength="20">
     <div class="invalid-feedback">Podaj poprawny, 9-cyfrowy numer telefonu (np. 123 456 789).</div>
 </div>
