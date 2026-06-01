@@ -93,6 +93,15 @@ return [
         return $instance;
     },
 
+    'inventoryManager' => function ($c) {
+        static $instance;
+        if ($instance === null) {
+            require_once BASE_PATH . '/src/managers/InventoryManager.php';
+            $instance = new InventoryManager($c['pdo']($c));
+        }
+        return $instance;
+    },
+
     //Controllers
     'authController' => function ($c) {
         static $instance;
@@ -180,6 +189,15 @@ return [
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/OrderFulfillmentController.php';
             $instance = new OrderFulfillmentController($c['orderFulfillmentManager']($c));
+        }
+        return $instance;
+    },
+
+    'inventoryController' => function ($c) {
+        static $instance;
+        if ($instance === null) {
+            require_once BASE_PATH . '/src/controllers/InventoryController.php';
+            $instance = new InventoryController($c['inventoryManager']($c));
         }
         return $instance;
     }
