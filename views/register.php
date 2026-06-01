@@ -4,7 +4,7 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <h2 class="text-center mb-4 fw-bold">Załóż konto</h2>
-                    
+
                     <?php if (!empty($error_message)): ?>
                         <div class="alert alert-danger" role="alert">
                             <?= htmlspecialchars($error_message) ?>
@@ -20,17 +20,17 @@
                     <form id="register-form" action="index.php?page=register" method="POST" novalidate>
                         <div class="mb-3">
                             <label for="first_name" class="form-label">Imię</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            <input type="text" class="form-control" id="first_name" name="first_name" maxlength="50" required>
                             <div class="invalid-feedback">Proszę podać imię.</div>
                         </div>
                         <div class="mb-3">
                             <label for="last_name" class="form-label">Nazwisko</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            <input type="text" class="form-control" id="last_name" name="last_name" maxlength="50" required>
                             <div class="invalid-feedback">Proszę podać nazwisko.</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Adres e-mail</label>
-                            <input type="email" style="text-transform: lowercase;" class="form-control" id="email" name="email" required autocapitalize="none">
+                            <input type="email" style="text-transform: lowercase;" class="form-control" id="email" name="email" maxlength="255" required autocapitalize="none">
                             <div class="invalid-feedback">Podaj poprawny format adresu e-mail (np. jan@kowalski.pl).</div>
                         </div>
                         <div class="mb-3">

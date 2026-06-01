@@ -84,16 +84,16 @@
                     <div class="row g-2 mb-3">
                         <div class="col-6">
                             <label class="form-label small text-muted">Imię <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="first_name" value="<?= e($user['first_name'] ?? '') ?>" required maxlength="100">
+                            <input type="text" class="form-control" name="first_name" value="<?= e($user['first_name'] ?? '') ?>" required maxlength="50">
                         </div>
                         <div class="col-6">
                             <label class="form-label small text-muted">Nazwisko <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="last_name" value="<?= e($user['last_name'] ?? '') ?>" required maxlength="100">
+                            <input type="text" class="form-control" name="last_name" value="<?= e($user['last_name'] ?? '') ?>" required maxlength="50">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small text-muted">Ulica i numer domu/lokalu <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="street" required maxlength="150">
+                        <input type="text" class="form-control" name="street" required maxlength="100">
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-4">
@@ -102,7 +102,7 @@
                         </div>
                         <div class="col-8">
                             <label class="form-label small text-muted">Miasto <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="city" required maxlength="100">
+                            <input type="text" class="form-control" name="city" required maxlength="50">
                         </div>
                     </div>
                     <div class="mb-4">

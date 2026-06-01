@@ -7,7 +7,7 @@
         <input type="email" class="form-control" id="shipping_email" value="<?= e($currentUser['email']) ?>" disabled>
         <div class="form-text">Potwierdzenie wyślemy na adres przypisany do konta.</div>
     <?php else: ?>
-        <input type="email" class="form-control" id="shipping_email" name="shipping[email]" placeholder="np. jan@kowalski.pl" required>
+        <input type="email" class="form-control" id="shipping_email" name="shipping[email]" placeholder="np. jan@kowalski.pl" maxlength="255" required>
         <div class="invalid-feedback">Podaj poprawny adres e-mail (np. jan@kowalski.pl).</div>
     <?php endif; ?>
 </div>
@@ -16,7 +16,7 @@
 <div class="col-md-6">
     <label for="shipping_first_name" class="form-label">Imię <span class="text-danger">*</span></label>
     <input type="text" class="form-control" id="shipping_first_name" name="shipping[first_name]"
-        value="<?= $currentUser ? e($currentUser['first_name']) : '' ?>" required>
+        value="<?= $currentUser ? e($currentUser['first_name']) : '' ?>" maxlength="50" required>
     <div class="invalid-feedback">Proszę podać swoje imię.</div>
 </div>
 
@@ -24,7 +24,7 @@
 <div class="col-md-6">
     <label for="shipping_last_name" class="form-label">Nazwisko <span class="text-danger">*</span></label>
     <input type="text" class="form-control" id="shipping_last_name" name="shipping[last_name]"
-        value="<?= $currentUser ? e($currentUser['last_name']) : '' ?>" required>
+        value="<?= $currentUser ? e($currentUser['last_name']) : '' ?>" maxlength="50" required>
     <div class="invalid-feedback">Proszę podać swoje nazwisko.</div>
 </div>
 
