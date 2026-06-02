@@ -146,4 +146,14 @@ class ProductManager
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getAllBrands()
+    {
+        $sql = "SELECT DISTINCT brand_name 
+                FROM products 
+                WHERE brand_name IS NOT NULL AND TRIM(brand_name) != '' 
+                ORDER BY brand_name ASC";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
 }

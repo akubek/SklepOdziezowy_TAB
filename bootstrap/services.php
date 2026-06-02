@@ -179,7 +179,7 @@ return [
         static $instance;
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/ReportController.php';
-            $instance = new ReportController($c['reportManager']($c));
+            $instance = new ReportController($c['reportManager']($c), $c['categoryManager']($c), $c['productManager']($c));
         }
         return $instance;
     },
