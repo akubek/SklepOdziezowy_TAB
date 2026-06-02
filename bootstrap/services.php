@@ -93,6 +93,15 @@ return [
         return $instance;
     },
 
+    'reportManager' => function ($c) {
+        static $instance;
+        if ($instance === null) {
+            require_once BASE_PATH . '/src/managers/ReportManager.php';
+            $instance = new ReportManager($c['pdo']($c));
+        }
+        return $instance;
+    },
+
     'inventoryManager' => function ($c) {
         static $instance;
         if ($instance === null) {
@@ -162,6 +171,15 @@ return [
         if ($instance === null) {
             require_once BASE_PATH . '/src/controllers/ProfileController.php';
             $instance = new ProfileController($c['userManager']($c), $c['orderManager']($c), $c['reviewManager']($c));
+        }
+        return $instance;
+    },
+
+    'reportController' => function ($c) {
+        static $instance;
+        if ($instance === null) {
+            require_once BASE_PATH . '/src/controllers/ReportController.php';
+            $instance = new ReportController($c['reportManager']($c));
         }
         return $instance;
     },
