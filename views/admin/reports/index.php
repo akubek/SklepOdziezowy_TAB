@@ -22,14 +22,17 @@
                     <h5 class="mb-0">Filtry Sprzedaży</h5>
                 </div>
                 <div class="card-body">
-                    <form id="sales-filters" class="row g-3">
+                    <form id="sales-filters" class="row g-3" action="index.php" method="GET">
+                        <input type="hidden" name="page" value="admin_reports">
+                        <input type="hidden" name="action" value="generate_sales">
                         <div class="col-md-3">
                             <label class="form-label">Zakres od:</label>
-                            <input type="date" class="form-control" name="date_from" value="<?= date('Y-m-d', strtotime('-30 days')) ?>">
+                            <input type="date" class="form-control sales-date" name="date_from" value="<?= date('Y-m-d', strtotime('-30 days')) ?>">
+                            <div class="invalid-feedback">Data początkowa musi być równa lub mniejsza od końcowej.</div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Zakres do:</label>
-                            <input type="date" class="form-control" name="date_to" value="<?= date('Y-m-d') ?>">
+                            <input type="date" class="form-control sales-date" name="date_to" value="<?= date('Y-m-d') ?>">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Kategorie:</label>
@@ -91,20 +94,31 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Marki (Ctrl by zaznaczyć wiele):</label>
-                            <select class="form-select" name="brands[]" multiple size="6">
-                                <option value="all" selected>Wszystkie marki</option>
+                            <label class="form-label">Marki:</label>
+                            <div class="border rounded bg-white p-2" style="max-height: 250px; overflow-y: auto;">
+
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" id="brand_all" value="all">
+                                    <label class="form-check-label fw-bold" for="brand_all">Wszystkie marki</label>
+                                </div>
+                                <hr class="my-1">
+
                                 <?php if (!empty($brands)): ?>
-                                    <?php foreach ($brands as $brand): ?>
-                                        <option value="<?= htmlspecialchars($brand) ?>">
-                                            <?= htmlspecialchars($brand) ?>
-                                        </option>
+                                    <?php foreach ($brands as $index => $brand): ?>
+                                        <div class="form-check mb-1">
+                                            <input class="form-check-input brand-cb" type="checkbox" name="brands[]" value="<?= htmlspecialchars($brand) ?>" id="brand_<?= $index ?>">
+                                            <label class="form-check-label" for="brand_<?= $index ?>">
+                                                <?= htmlspecialchars($brand) ?>
+                                            </label>
+                                        </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
-                            </select>
+
+                            </div>
                         </div>
-                        <div class="col-12 text-end">
-                            <button type="button" class="btn btn-primary" onclick="loadSalesData()">Generuj Raport Sprzedaży</button>
+                        <div class="col-12 text-end d-flex justify-content-end gap-2">
+                            <button type="reset" class="btn btn-outline-secondary">Wyczyść filtry</button>   
+                            <button type="submit" class="btn btn-primary">Generuj Raport Sprzedaży</button>
                         </div>
                     </form>
                 </div>
@@ -134,6 +148,11 @@
                     <canvas id="salesTrendChart"></canvas>
                 </div>
             </div>
+
+            <div id="sales-empty-state" class="text-center py-5 text-muted">
+                <i class="bi bi-bar-chart" style="font-size: 3rem;"></i>
+                <p class="mt-3">Wybierz kryteria i kliknij "Generuj Raport Sprzedaży".</p>
+            </div>
         </div>
 
         <div class="tab-pane fade" id="demographics-report" role="tabpanel" aria-labelledby="demo-tab">
@@ -142,26 +161,54 @@
                     <h5 class="mb-0">Badanie popularności wg Demografii</h5>
                 </div>
                 <div class="card-body">
-                    <form id="demo-filters" class="row g-3">
+                    <form id="demo-filters" class="row g-3" action="index.php" method="GET">
+                        <input type="hidden" name="page" value="admin_reports">
+                        <input type="hidden" name="action" value="generate_demo">
                         <div class="col-md-2">
                             <label class="form-label">Grupa wiekowa:</label>
-                            <select class="form-select" name="age_groups[]" multiple size="4">
-                                <option value="<18">
-                                    < 18</option>
-                                <option value="18-24">18-24</option>
-                                <option value="25-34">25-34</option>
-                                <option value="35-44">35-44</option>
-                                <option value="45+">45+</option>
-                            </select>
+                            <div class="border rounded bg-white p-2">
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="age_groups[]" value="<18" id="age_1">
+                                    <label class="form-check-label" for="age_1">< 18</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="age_groups[]" value="18-24" id="age_2">
+                                    <label class="form-check-label" for="age_2">18-24</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="age_groups[]" value="25-34" id="age_3">
+                                    <label class="form-check-label" for="age_3">25-34</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="age_groups[]" value="35-44" id="age_4">
+                                    <label class="form-check-label" for="age_4">35-44</label>
+                                </div>
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" name="age_groups[]" value="45+" id="age_5">
+                                    <label class="form-check-label" for="age_5">45+</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Płeć:</label>
-                            <select class="form-select" name="genders[]" multiple size="3">
-                                <option value="MALE">Mężczyźni</option>
-                                <option value="FEMALE">Kobiety</option>
-                                <option value="OTHER">Inne płci</option>
-                                <option value="Brak danych">Nie podano</option>
-                            </select>
+                            <div class="border rounded bg-white p-2">
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="genders[]" value="MALE" id="gender_m">
+                                    <label class="form-check-label" for="gender_m">Mężczyźni</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="genders[]" value="FEMALE" id="gender_f">
+                                    <label class="form-check-label" for="gender_f">Kobiety</label>
+                                </div>
+                                <div class="form-check mb-1">
+                                    <input class="form-check-input" type="checkbox" name="genders[]" value="OTHER" id="gender_o">
+                                    <label class="form-check-label" for="gender_o">Inne płci</label>
+                                </div>
+                                <div class="form-check mb-0">
+                                    <input class="form-check-input" type="checkbox" name="genders[]" value="Brak danych" id="gender_none">
+                                    <label class="form-check-label" for="gender_none">Nie podano</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Miasta (po przecinku):</label>
@@ -169,9 +216,10 @@
 
                             <label class="form-label mt-2">Opcjonalny przedział aktywności:</label>
                             <div class="d-flex gap-2">
-                                <input type="date" class="form-control form-control-sm" name="active_from">
-                                <input type="date" class="form-control form-control-sm" name="active_to">
+                                <input type="date" class="form-control demo-date" name="active_from">
+                                <input type="date" class="form-control demo-date" name="active_to">
                             </div>
+                            <div class="invalid-feedback d-block" id="demo-date-error" style="display: none !important;">Data "od" nie może być większa niż "do".</div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Pokaż ranking dla:</label>
@@ -185,7 +233,7 @@
                             </div>
                         </div>
                         <div class="col-md-2 text-end d-flex align-items-end">
-                            <button type="button" class="btn btn-primary w-100" onclick="loadDemographicsData()">Pokaż ranking</button>
+                            <button type="submit" class="btn btn-primary w-100">Pokaż ranking</button>
                         </div>
                     </form>
                 </div>
@@ -196,6 +244,12 @@
                     <canvas id="popularityChart"></canvas>
                 </div>
             </div>
+
+            <div id="demo-empty-state" class="text-center py-5 text-muted">
+                <i class="bi bi-people" style="font-size: 3rem;"></i>
+                <p class="mt-3">Wybierz kryteria i kliknij "Pokaż ranking", aby załadować profil klientów.</p>
+            </div>
+
         </div>
         <div id="demo-empty-state" class="text-center py-5 text-muted">
             <i class="bi bi-people" style="font-size: 3rem;"></i>
@@ -204,6 +258,10 @@
     </div>
 
 </div>
+<div id="reports-data-payload" class="d-none"
+     data-active-tab="<?= e($active_tab) ?>"
+     data-sales="<?= e(json_encode($salesData ?? [])) ?>"
+     data-demo="<?= e(json_encode($demoData ?? [])) ?>">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
