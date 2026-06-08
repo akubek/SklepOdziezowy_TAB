@@ -17,7 +17,7 @@ class ReportController
     public function index()
     {
         if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'MANAGER') {
-            header('Location: /index.php?page=errors/403');
+            header('Location: /index.php?page=403');
             exit;
         }
         // Podstawowe dane dla formularzy
