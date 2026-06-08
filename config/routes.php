@@ -47,9 +47,12 @@ return [
     'admin_order_details' => fn($c) => $c['orderFulfillmentController']($c)->show(),
     'admin_order_update'  => fn($c) => $c['orderFulfillmentController']($c)->updateStatus(),
 
+    // Panel raportow
+    'admin_reports'       => fn($c) => $c['reportController']($c)->index(),
+
     // --- Panel Managera ---
     'admin_inventory' => fn($c) => $c['inventoryController']($c)->index(),
-    
+
     // CRUD Kategorii
     'admin_category_add'    => fn($c) => $c['inventoryController']($c)->showCategoryForm(),
     'admin_category_edit'   => fn($c) => $c['inventoryController']($c)->showCategoryForm(),

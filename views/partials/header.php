@@ -41,17 +41,36 @@ $mainCategories = $categoryManager->getSubCategories(1);
 
                         <?php if (isset($_SESSION['user_id'])): ?>
                             <a href="index.php?page=profile" class="btn btn-outline-light text-nowrap">Moje konto</a>
-                            
-                            <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['EMPLOYEE', 'MANAGER'])): ?>
-                                <a href="index.php?page=admin_orders" class="btn btn-outline-warning text-nowrap">
-                                    <i class="bi bi-box-seam"></i> Zamówienia
-                                </a>
-                            <?php endif; ?>
 
-                            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'MANAGER'): ?>
-                                <a href="index.php?page=admin_inventory" class="btn btn-outline-danger text-nowrap">
-                                    <i class="bi bi-boxes"></i> Magazyn
-                                </a>
+                            <?php if (isset($_SESSION['role']) && in_array($_SESSION['role'], ['EMPLOYEE', 'MANAGER'])): ?>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-warning dropdown-toggle text-nowrap" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi"></i> Panel Zarządzania
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="index.php?page=admin_orders">
+                                                <i class="bi bi-box-seam"></i> Zamówienia
+                                            </a>
+                                        </li>
+
+                                        <?php if ($_SESSION['role'] === 'MANAGER'): ?>
+                                            <li>
+                                                <a class="dropdown-item" href="index.php?page=admin_inventory">
+                                                    <i class="bi bi-boxes"></i> Magazyn
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="index.php?page=admin_reports">
+                                                    <i class="bi bi-graph-up"></i> Raporty i Statystyki
+                                                </a>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                </div>
                             <?php endif; ?>
 
                             <a href="index.php?page=logout" class="btn btn-danger text-nowrap">Wyloguj</a>

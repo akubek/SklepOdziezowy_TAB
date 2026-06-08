@@ -1,19 +1,16 @@
 services: 
   web:
-    image: php:8.5-cli
+    build: .
     ports:
       - "8000:8000"
     volumes:
-      - ./:/var/www/html
+      - ./:/var/www/html:z
     working_dir: /var/www/html
     depends_on:
       - db
     # PDO drivers on public
     # 0.0.0.0 - visible outside
-    command: >
-      bash -c "apt-get update && apt-get install -y libpq-dev 
-      && docker-php-ext-install pdo pdo_pgsql 
-      && php -S 0.0.0.0:8000 -t public"
+    command: php -S 0.0.0.0:8000 -t public
 
   db:
     # PostgreSQL version
@@ -29,7 +26,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql
       # automatic database setup from .sql files
-      - ./database:/docker-entrypoint-initdb.d
+      - ./database:/docker-entrypoint-initdb.d:z
 
   # minimal database admin tool
   adminer:

@@ -3,6 +3,7 @@ CREATE OR REPLACE VIEW v_sales_report AS
 SELECT 
     DATE(o.created_at) AS sale_date,
     p.brand_name,
+    c.id AS category_id,
     c.name AS category_name,
     pc.name AS parent_category_name,
     SUM(oi.quantity) AS total_quantity,
@@ -22,6 +23,7 @@ WHERE
 GROUP BY 
     DATE(o.created_at),
     p.brand_name,
+    c.id,
     c.name,
     pc.name;
 
@@ -51,6 +53,9 @@ SELECT
     -- Marka i konkretny produkt
     p.brand_name,
     p.name AS product_name,
+
+    -- Data zamówienia do późniejszego filtrowania
+    o.created_at::date AS order_date,
     
     -- Agregacje
     SUM(oi.quantity) AS total_products_bought,
@@ -75,12 +80,13 @@ GROUP BY
     pc.name,
     c.name,
     p.brand_name,
-    p.name;
+    p.name,
+    o.created_at::date;
 
 -- widok pomocniczy do popularnosci produktow
 CREATE OR REPLACE VIEW v_popular_products AS
 SELECT 
-    DATE(o.created_at) AS sale_date, -- NOWOŚĆ: Dodana data
+    DATE(o.created_at) AS sale_date,
     p.id AS product_id,
     p.name AS product_name,
     p.brand_name,
@@ -96,8 +102,33 @@ WHERE
     o.status != 'CANCELLED' 
     AND o.payment_status = 'PAID'
 GROUP BY 
-    DATE(o.created_at), -- NOWOŚĆ: Grupowanie po dacie
+    DATE(o.created_at),
     p.id, 
     p.name, 
     p.brand_name, 
     c.name;
+
+CREATE OR REPLACE VIEW v_users_extended AS
+SELECT 
+    id AS user_id,
+    created_at::date AS registration_date,
+    COALESCE(gender::text, 'Brak danych') AS gender,
+    CASE 
+        WHEN birth_date IS NULL THEN 'Brak danych'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) < 18 THEN '<18'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) BETWEEN 18 AND 24 THEN '18-24'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) BETWEEN 25 AND 34 THEN '25-34'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) BETWEEN 35 AND 44 THEN '35-44'
+        WHEN EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) >= 45 THEN '45+'
+        ELSE 'Brak danych'
+    END AS age_group
+FROM users;
+
+CREATE OR REPLACE VIEW v_registration_report AS
+SELECT 
+    registration_date,
+    age_group,
+    gender,
+    COUNT(*) AS new_users_count
+FROM v_users_extended
+GROUP BY registration_date, age_group, gender;
