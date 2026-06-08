@@ -3,6 +3,7 @@ CREATE OR REPLACE VIEW v_sales_report AS
 SELECT 
     DATE(o.created_at) AS sale_date,
     p.brand_name,
+    c.id AS category_id,
     c.name AS category_name,
     pc.name AS parent_category_name,
     SUM(oi.quantity) AS total_quantity,
@@ -22,6 +23,7 @@ WHERE
 GROUP BY 
     DATE(o.created_at),
     p.brand_name,
+    c.id,
     c.name,
     pc.name;
 

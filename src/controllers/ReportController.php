@@ -15,45 +15,85 @@ class ReportController
 
     // 1. Zwraca główny widok HTML panelu
     public function index()
-{
-    // Zabezpieczenie dostępu
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'MANAGER') {
-        header('Location: /index.php?page=errors/403');
-        exit;
-    }
-
-    $categories = $this->categoryManager->getCategoryNestedTree();
-    $brands = $this->productManager->getAllBrands(); 
-
-    // Zmienne na wyniki raportów (domyślnie puste)
-    $salesData = null;
-    $demoData = null;
-    
-    // Sprawdzamy, która zakładka powinna być aktywna po przeładowaniu strony
-    $activeTab = 'sales'; 
-
-    // Sprawdzamy, co chcemy wygenerować (na podstawie ukrytego pola action)
-    $action = $_GET['action'] ?? null;
-
-    if ($action === 'generate_sales') {
-        $activeTab = 'sales';
-        // Walidacja dat
-        if (!empty($_GET['date_from']) && !empty($_GET['date_to'])) {
-            $salesData = $this->reportManager->getSalesTrend($_GET);
+    {
+        if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'MANAGER') {
+            header('Location: /index.php?page=errors/403');
+            exit;
         }
-    } 
-    elseif ($action === 'generate_demo') {
-        $activeTab = 'demo';
-        $demoData = $this->reportManager->getDemographicsRanking($_GET);
+        // Podstawowe dane dla formularzy
+        $viewData = [
+            'active_tab' => 'sales',
+            'categories' => $this->categoryManager->getCategoryNestedTree(),
+            'brands'     => $this->productManager->getAllBrands(),
+            'salesData'  => null,
+            'demoData'   => null,
+            'errors'     => [] //tablica na błędy walidacji
+        ];
+
+        $action = $_GET['action'] ?? null;
+
+        if ($action === 'generate_sales') {
+            $viewData = $this->handleSalesRequest($viewData);
+        } elseif ($action === 'generate_demo') {
+            $viewData = $this->handleDemoRequest($viewData);
+        }
+
+        renderView('admin/reports/index', $viewData);
     }
 
-    // Renderujemy widok, przekazując mu wszystko
-    renderView('admin/reports/index', [
-        'active_tab' => $activeTab,
-        'categories' => $categories,
-        'brands'     => $brands,
-        'salesData'  => $salesData,
-        'demoData'   => $demoData
-    ]);
-}
+    private function handleSalesRequest(array $viewData): array
+    {
+        $viewData['active_tab'] = 'sales';
+
+        // 1. Walidacja w kontrolerze
+        $allTime = !empty($_GET['all_time']);
+        $dateFrom = $_GET['date_from'] ?? null;
+        $dateTo = $_GET['date_to'] ?? null;
+        $categories = $_GET['categories'] ?? [];
+        $allBrands = !empty($_GET['all_brands']);
+        $brands = $_GET['brands'] ?? [];
+
+        if (!$allTime) {
+            if (!$dateFrom || !$dateTo || strtotime($dateFrom) > strtotime($dateTo)) {
+                $viewData['errors'][] = "Błędny zakres dat.";
+                return $viewData;
+            }
+        }
+
+        if (empty($categories)) {
+            $viewData['errors'][] = "Wybierz co najmniej jedną kategorię.";
+            return $viewData;
+        }
+
+        if (!$allBrands && empty($brands)) {
+            $viewData['errors'][] = "Wybierz co najmniej jedną markę.";
+            return $viewData;
+        }
+
+        // 2. Przygotowanie czystych danych dla Managera
+        $filters = [
+            'all_time'   => $allTime,
+            'date_from'  => $dateFrom,
+            'date_to'    => $dateTo,
+            'categories' => $categories,
+            'all_brands' => $allBrands,
+            'brands'     => $brands
+        ];
+
+        // 3. Odpytanie Managera
+        try {
+            $viewData['salesData'] = $this->reportManager->getSalesTrend($filters);
+        } catch (\Exception $e) {
+            $viewData['errors'][] = "Błąd generowania raportu: " . $e->getMessage();
+        }
+
+        return $viewData;
+    }
+
+    private function handleDemoRequest(array $viewData): array
+    {
+        $viewData['active_tab'] = 'demo';
+        // Analogicznie: walidacja $_GET, przygotowanie filtrów i wywołanie $reportManager->getDemographicsRanking()
+        return $viewData;
+    }
 }

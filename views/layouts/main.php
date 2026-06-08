@@ -8,7 +8,14 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script>
+        // Jeśli w pamięci jest zapisana pozycja scrolla, ukryj stronę przed jej narysowaniem
+        if (sessionStorage.getItem('reportScrollPos')) {
+            //document.documentElement.style.visibility = 'hidden';
+        }
+    </script>
 </head>
+
 
 <body class="bg-light">
 
