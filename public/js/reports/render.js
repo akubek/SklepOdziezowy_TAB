@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const activeDays = salesData.trend.filter(dayRow => parseFloat(dayRow.daily_revenue) > 0);
 
-        if (salesData.trend && salesData.trend.length > 0) {
+        if (activeDays && activeDays.length > 0) {
             activeDays.forEach(dayRow => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tbody.appendChild(tr);
             });
         } else {
-            tbody.innerHTML = '<tr><td colspan="3" class="text-muted">Brak sprzedaży w wybranym okresie.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="text-muted text-center py-4">Brak danych sprzedaży spełniających wybrane kryteria.</td></tr>';
         }
 
         if (salesData.trend && salesData.trend.length > 0) {
@@ -200,13 +200,63 @@ document.addEventListener('DOMContentLoaded', () => {
     // RENDEROWANIE DEMOGRAFII
     // ==========================================
     const rawDemoData = payloadElement.dataset.demo;
-    if (rawDemoData && rawDemoData !== '[]' && rawDemoData !== 'null') {
+    if (rawDemoData && rawDemoData !== 'null') {
         const demoData = JSON.parse(rawDemoData);
-        document.getElementById('demo-empty-state').classList.add('d-none');
-        document.getElementById('demo-results-container').classList.remove('d-none');
 
-        if (demoData.length === 0) {
-            alert("Brak danych spełniających wybrane kryteria.");
+        // 1. Odkrywanie UI
+        document.getElementById('demo-empty-state').classList.add('d-none');
+        document.getElementById('demo-report-header').classList.remove('d-none');
+        //document.getElementById('demo-chart-container').classList.remove('d-none');
+        document.getElementById('demo-details-container').classList.remove('d-none');
+
+        // 2. Budowanie nagłówka kontekstowego
+        const isAllTimeDemo = document.getElementById('all_time_demo')?.checked;
+        const activeFrom = document.querySelector('input[name="active_from"]')?.value || '';
+        const activeTo = document.querySelector('input[name="active_to"]')?.value || '';
+        const formatDate = (dateStr) => dateStr ? dateStr.split('-').reverse().join('.') : '';
+
+        if (isAllTimeDemo) {
+            document.getElementById('demo-report-title').innerText = `Raport Demograficzny: Klienci z całego okresu`;
+        } else {
+            document.getElementById('demo-report-title').innerText = `Raport Demograficzny: Klienci aktywni od ${formatDate(activeFrom)} do ${formatDate(activeTo)}`;
+        }
+
+        const selectedAges = Array.from(document.querySelectorAll('.age-cb:checked')).map(cb => cb.nextElementSibling.innerText.trim());
+        const selectedGenders = Array.from(document.querySelectorAll('.gender-cb:checked')).map(cb => cb.nextElementSibling.innerText.trim());
+        const citiesStr = document.querySelector('input[name="cities"]')?.value.trim() || 'Wszystkie';
+        const groupType = document.querySelector('input[name="group_by_type"]:checked').value;
+
+        const headerName = (groupType === 'brands') ? 'Marka' :
+            (groupType === 'categories') ? 'Kategoria' : 'Produkt';
+
+        const filtersText = `Wiek: [${selectedAges.join(', ')}] | Płeć: [${selectedGenders.join(', ')}] | Miasta: [${citiesStr}] | Grupowanie: ${groupType === 'brands' ? 'Marki' : (groupType === 'categories' ? 'Kategorie' : 'Produkty')}`;
+        document.getElementById('demo-report-filters').innerText = filtersText;
+        document.getElementById('demo-table-name-header').innerText = headerName;
+
+        // 3. Generowanie Tabeli Rankingu
+        const tbodyDemo = document.getElementById('demo-table-body');
+        tbodyDemo.innerHTML = '';
+
+        if (demoData.length > 0) {
+            demoData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+
+                let placeDecoration = `${index + 1}.`;
+
+                tr.innerHTML = `
+                    <td class="fw-bold">${placeDecoration}</td>
+                    <td class="text-start ps-4">${row.item_name}</td>
+                    <td class="text-success fw-bold">${row.total_bought} szt.</td>
+                `;
+                tbodyDemo.appendChild(tr);
+            });
+
+            // 4. Miejsce na wywołanie Chart.js (wykres słupkowy lub kołowy dla Top 10)
+            // renderDemographicsChart(demoData);
+
+        } else {
+            tbodyDemo.innerHTML = '<tr><td colspan="3" class="text-muted text-center py-4">Brak danych demograficznych spełniających wybrane kryteria.</td></tr>';
+            document.getElementById('demo-chart-container').classList.add('d-none');
         }
     }
 });

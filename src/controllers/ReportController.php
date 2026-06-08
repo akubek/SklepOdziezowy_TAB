@@ -93,7 +93,59 @@ class ReportController
     private function handleDemoRequest(array $viewData): array
     {
         $viewData['active_tab'] = 'demo';
-        // Analogicznie: walidacja $_GET, przygotowanie filtrów i wywołanie $reportManager->getDemographicsRanking()
+
+        // 1. Walidacja danych wejściowych
+        $allTime = !empty($_GET['all_time']);
+        $activeFrom = $_GET['active_from'] ?? null;
+        $activeTo = $_GET['active_to'] ?? null;
+
+        $ageGroups = $_GET['age_groups'] ?? [];
+        $genders = $_GET['genders'] ?? [];
+        $cities = !empty($_GET['cities']) ? explode(',', $_GET['cities']) : [];
+        $groupBy = $_GET['group_by_type'] ?? 'products';
+
+        $groupByCol = match ($groupBy) {
+            'brands' => "brand_name",
+            'categories' => "COALESCE(parent_category_name || ' ➔ ' || category_name, category_name)",
+            default => "product_name"
+        };
+
+        // Walidacja dat
+        if (!$allTime && (!$activeFrom || !$activeTo || strtotime($activeFrom) > strtotime($activeTo))) {
+            $viewData['errors'][] = "Błędny zakres dat aktywności.";
+            return $viewData;
+        }
+
+        // Walidacja checkboxów
+        if (empty($ageGroups)) {
+            $viewData['errors'][] = "Wybierz co najmniej jedną grupę wiekową.";
+            return $viewData;
+        }
+        if (empty($genders)) {
+            $viewData['errors'][] = "Wybierz co najmniej jedną płeć.";
+            return $viewData;
+        }
+
+        // 2. Przygotowanie danych do Managera
+        $filters = [
+            'all_time'   => $allTime,
+            'active_from' => $activeFrom,
+            'active_to'  => $activeTo,
+            'age_groups' => $ageGroups,
+            'genders'    => $genders,
+            'cities'     => array_map('trim', $cities), // Czyścimy spacje z nazw miast
+            'group_by'   => ($groupBy === 'brands') ? 'brand_name' : 'product_name',
+            'group_by_col' => $groupByCol,
+            'group_by_label' => ($groupBy === 'brands') ? 'Marka' : (($groupBy === 'categories') ? 'Kategoria' : 'Produkt')
+        ];
+
+        // 3. Wywołanie Managera
+        try {
+            $viewData['demoData'] = $this->reportManager->getDemographicsRanking($filters);
+        } catch (\Exception $e) {
+            $viewData['errors'][] = "Błąd raportu demograficznego: " . $e->getMessage();
+        }
+
         return $viewData;
     }
 }

@@ -27,44 +27,6 @@ class ReportManager
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getDemographicsRanking($filters)
-    {
-        // 1. Zabezpieczenie wyboru kolumny do grupowania (unikamy SQL Injection)
-        $groupByCol = ($filters['group_by_type'] === 'brands') ? 'brand_name' : 'product_name';
-
-        $query = "SELECT $groupByCol AS name, 
-                     SUM(total_products_bought) AS quantity, 
-                     SUM(total_amount_spent) AS revenue
-              FROM v_demographics_report 
-              WHERE 1=1 ";
-        $params = [];
-
-        // Opcjonalny filtr wieku
-        if (!empty($filters['age_groups'])) {
-            // Generuje: AND age_group IN (?, ?, ?)
-            $inQuery = implode(',', array_fill(0, count($filters['age_groups']), '?'));
-            $query .= " AND age_group IN ($inQuery)";
-            $params = array_merge($params, $filters['age_groups']);
-        }
-
-        // Opcjonalny filtr daty aktywności
-        if (!empty($filters['active_from']) && !empty($filters['active_to'])) {
-            $query .= " AND order_date BETWEEN ? AND ?";
-            $params[] = $filters['active_from'];
-            $params[] = $filters['active_to'];
-        }
-
-        // (Podobnie dla płci i miast - miasta możesz rozbić po przecinku funkcją explode)
-
-        // Agregacja i sortowanie od najpopularniejszego
-        $query .= " GROUP BY $groupByCol 
-                ORDER BY quantity DESC 
-                LIMIT 20"; // Pokaż tylko Top 20, żeby wykres był czytelny
-
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
     public function getSalesTrend(array $filters)
     {
@@ -180,5 +142,53 @@ class ReportManager
             ],
             'trend' => $trend
         ];
+    }
+
+    public function getDemographicsRanking(array $filters): array
+    {
+        $params = [];
+        $where = [];
+
+        // Daty
+        if (!$filters['all_time']) {
+            $where[] = "order_date BETWEEN ? AND ?";
+            $params[] = $filters['active_from'];
+            $params[] = $filters['active_to'];
+        }
+
+        // Wiek (IN)
+        $agePlaceholders = implode(',', array_fill(0, count($filters['age_groups']), '?'));
+        $where[] = "age_group IN ($agePlaceholders)";
+        foreach ($filters['age_groups'] as $age) $params[] = $age;
+
+        // Płeć (IN)
+        $genderPlaceholders = implode(',', array_fill(0, count($filters['genders']), '?'));
+        $where[] = "gender IN ($genderPlaceholders)";
+        foreach ($filters['genders'] as $gen) $params[] = $gen;
+
+        // Miasta (Opcjonalnie)
+        if (!empty($filters['cities'])) {
+            $cityPlaceholders = implode(',', array_fill(0, count($filters['cities']), '?'));
+            $where[] = "city IN ($cityPlaceholders)";
+            foreach ($filters['cities'] as $city) $params[] = $city;
+        }
+
+        $whereSql = "WHERE " . implode(' AND ', $where);
+        $groupByCol = $filters['group_by_col']; // bezpieczne, bo wybieramy z listy w kontrolerze
+
+        $query = "
+            SELECT 
+                $groupByCol AS item_name,
+                SUM(total_products_bought) AS total_bought
+            FROM v_demographics_report 
+            $whereSql
+            GROUP BY 1
+            ORDER BY 2 DESC
+            LIMIT 10
+            ";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

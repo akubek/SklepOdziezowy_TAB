@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     function restoreFormState() {
         const params = new URLSearchParams(window.location.search);
-        if (!params.has('action')) return;
+        const action = params.get('action');
+        if (!action) return;
 
         ['date_from', 'date_to', 'active_from', 'active_to', 'cities'].forEach(name => {
             if (params.has(name)) {
@@ -20,10 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         ['categories[]', 'brands[]', 'age_groups[]', 'genders[]'].forEach(name => {
-            const values = params.getAll(name);
-            if (values.length > 0) {
+            if (params.has(name)) {
+                document.querySelectorAll(`input[name="${name}"]`).forEach(cb => cb.checked = false);
+
+                const values = params.getAll(name);
                 values.forEach(val => {
-                    const cb = document.querySelector(`input[name="${name}"][value="${val}"]`);
+                    const cb = Array.from(document.querySelectorAll(`input[name="${name}"]`)).find(el => el.value === val);
+
                     if (cb) {
                         cb.checked = true;
                         if (cb.classList.contains('category-cb') && window.forceChildrenState) {
@@ -44,10 +48,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (params.has('all_time') && params.get('all_time') === '1') {
-            const allTimeCb = document.getElementById('all_time_sales');
-            if (allTimeCb) {
-                allTimeCb.checked = true;
-                allTimeCb.dispatchEvent(new Event('change')); // Wymusza wyszarzenie dat
+            if (action === 'generate_sales') {
+                const allTimeSalesCb = document.getElementById('all_time_sales');
+                if (allTimeSalesCb) {
+                    allTimeSalesCb.checked = true;
+                    allTimeSalesCb.dispatchEvent(new Event('change'));
+                }
+            } else if (action === 'generate_demo') {
+                const allTimeDemoCb = document.getElementById('all_time_demo');
+                if (allTimeDemoCb) {
+                    allTimeDemoCb.checked = true;
+                    allTimeDemoCb.dispatchEvent(new Event('change'));
+                }
             }
         }
 
@@ -159,6 +171,36 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 //sessionStorage.setItem('reportScrollPos', window.scrollY);
             }
+        });
+    }
+
+    const demoForm = document.getElementById('demo-filters');
+    if (demoForm) {
+        demoForm.addEventListener('submit', function (e) {
+            const ageCheckedCount = document.querySelectorAll('.age-cb:checked').length;
+            const genderCheckedCount = document.querySelectorAll('.gender-cb:checked').length;
+            let isValid = true;
+
+            if (ageCheckedCount === 0) {
+                document.getElementById('age-error').style.setProperty('display', 'block', 'important');
+                document.getElementById('age-container').classList.add('border-danger');
+                isValid = false;
+            } else {
+                document.getElementById('age-error').style.setProperty('display', 'none', 'important');
+                document.getElementById('age-container').classList.remove('border-danger');
+            }
+
+            if (genderCheckedCount === 0) {
+                document.getElementById('gender-error').style.setProperty('display', 'block', 'important');
+                document.getElementById('gender-container').classList.add('border-danger');
+                isValid = false;
+            } else {
+                document.getElementById('gender-error').style.setProperty('display', 'none', 'important');
+                document.getElementById('gender-container').classList.remove('border-danger');
+            }
+
+            if (!isValid) e.preventDefault();
+            else sessionStorage.setItem('reportScrollPos', window.scrollY); // Zapamiętaj pozycję
         });
     }
 
